@@ -1,0 +1,151 @@
+.id-card {
+    width: 300px; /* adjust the width to fit your needs */
+    background-color: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    margin-left: 10%;
+    margin-top: 2%;
+  }
+.id-card:hover{
+    background-color: #E3F4F4;
+}
+  
+  .info {
+    margin-top: 20px;
+    margin-left: 7%;
+  }
+  .info2 {
+    margin-left: 58%;
+    position: absolute;
+    margin-top: -58px;
+  }
+  
+  .label {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  .info p {
+    margin-bottom: 10px;
+  }
+  .text1{
+    margin-top: 3%;
+    margin-left: 5%;
+  }
+.printbtn{
+  height: 46px;
+    width: 90px;
+    border: none;
+    border-radius: 7%;
+    margin-left: 84%;
+    margin-top: 2%;
+    background-color: #C4DFDF;
+}
+.printbtn:hover{
+  background-color: #E3F4F4;
+}
+
+.search-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 1000px;
+    margin-left: 27%;
+}
+
+.search-bar input[type="search"] {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+
+
+.search-results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-results li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.search-results li:hover {
+  background-color: #f0f0f0;
+}
+a{
+  text-decoration: none;
+  color: black;
+}
+@media print {
+  .printbtn{
+    display: none;
+  }
+  .printHide{
+    display: none;
+  }
+  .print{
+    margin-top: 40%;
+  }
+  .info2 {
+    margin-left: 48%;
+  }
+  .search-bar{
+    display: none;
+  }
+}
+/* Small screens (mobile) */
+@media only screen and (max-width: 600px) {
+  .id-card {
+    width: 90%;
+    margin: 2% auto;
+  }
+  .info{
+    font-size: 12px;
+  }
+  .info2 {
+    margin-left: 40%;
+    font-size: 12px;
+  }
+  .search-bar {
+    flex-direction: column;
+    width: 90%;
+    margin: 20px auto;
+  }
+  .search-bar input[type="search"] {
+    width: 100%;
+  }
+  .printbtn{
+    margin-left: 71%;
+  }
+}
+
+/* Medium screens (tablet) */
+@media only screen and (min-width: 601px) and (max-width: 900px) {
+  .id-card {
+    width: 70%;
+    margin: 2% auto;
+  }
+  .info2 {
+    margin-left: 41%;
+  }
+  .search-bar {
+    width: 70%;
+    margin: 20px auto;
+  }
+  .printbtn{
+    margin-left: 73%;
+  }
+}
+

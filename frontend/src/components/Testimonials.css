@@ -1,0 +1,66 @@
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+.square {
+  width: calc(33.33% - 8px); /* 1/3 of the container width with gap of 8px */
+  height: 0;
+  padding-top: calc(33.33% - 8px); /* Maintain 1:1 aspect ratio */
+  position: relative;
+}
+
+.square img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%; /* For rounded shape */
+}
+
+#testimonialContainer {
+  display: flex;
+  justify-content: center;
+  padding: 0 50px; /* Adjust as needed */
+  overflow-x: hidden; /* Hide horizontal scroll */
+  height: 400px;
+}
+.text{
+  margin-top: 34%;
+}
+
+@media only screen and (min-width: 375px){
+  .square img {
+    width: 95px;
+    height: 95px;
+    margin-top: 265px;
+    margin-left: -29px;
+  }
+  .text {
+    margin-top: 400%;
+  }
+}
+@media only screen and (min-width: 425px){
+  .square img {
+    width: 95px;
+    height: 95px;
+    margin-top: 265px;
+    margin-left: -29px;
+  }
+  .text {
+    margin-top: 343%;
+  }
+}
+@media only screen and (min-width: 768px){
+  .square img {
+    width: 95px;
+    height: 95px;
+    margin-top: 265px;
+    margin-left: -29px;
+  }
+  .text {
+    margin-top: 343%;
+  }
+}
