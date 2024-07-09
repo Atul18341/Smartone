@@ -1,0 +1,39 @@
+.registration-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form-field {
+    margin-bottom: 1rem;
+  }
+  
+  .form-field label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+  }
+  
+  .form-field input,
+  .form-field select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+  }
+  
+  .form-field input:focus,
+  .form-field select:focus {
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+  }
