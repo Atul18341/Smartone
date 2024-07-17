@@ -1,0 +1,14 @@
+.loginBody{
+    background-color: #ffffff;
+    animation-name: example;
+    animation-duration: 4s;
+   
+}
+@keyframes example {
+    from {background-color: #ffffff;}
+    to {background-color: #E3F4F4;}
+  
+}
+.textSign{
+    color: rgb(107 169 169);
+}
