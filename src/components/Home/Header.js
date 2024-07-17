@@ -66,7 +66,7 @@ export const Header = () => {
 
             {/* Title */}
             <Typography
-              variant="h6"
+              variant="h5"
               noWrap
               component="a"
               href="#app-bar-with-responsive-menu"
