@@ -80,7 +80,7 @@ export const Header = () => {
                 
               }}
             >
-              Smart Campus
+              Smartone 
             </Typography>
 
             <Menu

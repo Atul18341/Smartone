@@ -22,8 +22,8 @@ export const Hero = () => {
     {
       image:
         "homepage_intro5.jpg",
-      title: "Welcome to Smart Campus",
-      subtitle: "Your journey to excellence starts here",
+      title: "Welcome to Smartone",
+      subtitle: "A complete smart campus initiative",
     },
     {
       image:
