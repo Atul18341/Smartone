@@ -137,8 +137,8 @@ export const RegisterUser = () => {
           },
           autoHideDuration: 3000,
         });
-        localStorage.setItem("accesstoken", res.data.token.access);
-        localStorage.setItem("bonafied", false);
+        sessionStorage.setItem("accesstoken", res.data.token.access);
+        sessionStorage.setItem("bonafied", false);
       })
       .catch((err) => {
         console.log(err);

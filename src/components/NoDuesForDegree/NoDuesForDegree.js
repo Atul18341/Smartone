@@ -124,15 +124,15 @@ export function NoDuesForDegree() {
   });
 
   const regenerateToken = () => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
-      const response1 = jwtDecode(localStorage?.getItem("refreshtoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
+      const response1 = jwtDecode(sessionStorage?.getItem("refreshtoken"));
       if (response.exp < Math.floor(Date.now() / 1000) || response1.exp < Math.floor(Date.now() / 1000)) {
         navigate("/login");
       }else{
-        if (localStorage.getItem("refreshtoken") && localStorage.getItem("accesstoken")) {
+        if (sessionStorage.getItem("refreshtoken") && sessionStorage.getItem("accesstoken")) {
           let data = {
-            refresh: localStorage?.getItem("refreshtoken"),
+            refresh: sessionStorage?.getItem("refreshtoken"),
           };
     
           let config = {
@@ -141,7 +141,7 @@ export function NoDuesForDegree() {
             url: "https://amarnath013.pythonanywhere.com/api/user/token/refresh/",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+              Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
             },
             data: data,
           };
@@ -150,7 +150,7 @@ export function NoDuesForDegree() {
             .request(config)
             .then((response) => {
               console.log(JSON.stringify(response.data));
-              localStorage.setItem("accesstoken", response.data.access);
+              sessionStorage.setItem("accesstoken", response.data.access);
             })
             .catch((error) => {
               if(error?.message==='Request failed with status code 500'){
@@ -193,19 +193,19 @@ export function NoDuesForDegree() {
   }, []);
 
   useEffect(() => {
-    if(localStorage.getItem("accesstoken")!==null && localStorage.getItem("refreshtoken")!==null){
+    if(sessionStorage.getItem("accesstoken")!==null && sessionStorage.getItem("refreshtoken")!==null){
     const fetchData = async () => {
       try {
         const response = await axios.get(
           `${BaseUrl}/profile/`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+              Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
             },
           }
         );
-        const token = localStorage.getItem("accesstoken");
-        const token1 = localStorage.getItem("refreshtoken");
+        const token = sessionStorage.getItem("accesstoken");
+        const token1 = sessionStorage.getItem("refreshtoken");
        
         if (token && token1) {
           let currentDate = new Date();
@@ -241,7 +241,7 @@ export function NoDuesForDegree() {
           `${BaseUrl}/overall-no-dues/`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+              Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
             },
           }
         );
@@ -252,8 +252,8 @@ export function NoDuesForDegree() {
 
     };
 
-    if (localStorage.getItem("accesstoken")) {
-      const decodedToken = jwtDecode(localStorage.getItem("accesstoken"));
+    if (sessionStorage.getItem("accesstoken")) {
+      const decodedToken = jwtDecode(sessionStorage.getItem("accesstoken"));
       if (decodedToken.exp < Math.floor(Date.now() / 1000)) {
         navigate("/login");
       } else {
@@ -296,8 +296,8 @@ export function NoDuesForDegree() {
       session: userProfile?.academic_information?.session,
     };
 
-    const token = localStorage.getItem("accesstoken");
-    const token1 = localStorage.getItem("refreshtoken");
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
     
     if(token && token1){
     try {
@@ -306,13 +306,13 @@ export function NoDuesForDegree() {
         requestData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
           },
         }
       ).then(response=>{
 
-        const token = localStorage.getItem("accesstoken");
-        const token1 = localStorage.getItem("refreshtoken");
+        const token = sessionStorage.getItem("accesstoken");
+        const token1 = sessionStorage.getItem("refreshtoken");
        
         if (token && token1) {
           let currentDate = new Date();
@@ -361,7 +361,7 @@ export function NoDuesForDegree() {
           });  
           navigate("/login");
         }
-        
+
         if(error?.response?.data?.errors?.detail==="Given token not valid for any token type"){
           enqueueSnackbar("Logging out", {
             variant: "error",

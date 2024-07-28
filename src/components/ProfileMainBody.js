@@ -25,8 +25,8 @@ export const ProfileMainBody = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (response.exp < Math.floor(Date.now() / 1000)|| response.role!=="student" ) {
         navigate("/login");
       }
@@ -41,7 +41,7 @@ export const ProfileMainBody = () => {
       maxBodyLength: Infinity,
       url: `${BaseUrl}/profile/`,
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
       },
     };
 
@@ -87,7 +87,7 @@ export const ProfileMainBody = () => {
   //     url: 'https://amarnath013.pythonanywhere.com/api/user/profile/',
   //     headers: {
   //       'Content-Type': 'application/json',
-  //       'Authorization': `Bearer ${localStorage.getItem('accesstoken')}`
+  //       'Authorization': `Bearer ${sessionStorage.getItem('accesstoken')}`
   //     },
   //     data : data
   //   };

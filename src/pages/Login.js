@@ -31,6 +31,25 @@ export const LoginPage = () => {
   const [loading,setLoading]=useState(false);
   const [remember,setRemember]=useState(false);
   
+  // Function to set a cookie
+function setCookie(name, value, days) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; Secure; SameSite=Strict`;
+}
+
+// Function to get a cookie by name
+function getCookie(name) {
+  return document.cookie.split('; ').reduce((r, v) => {
+    const parts = v.split('=');
+    return parts[0] === name ? decodeURIComponent(parts[1]) : r
+  }, '');
+}
+
+// Function to delete a cookie by name
+function deleteCookie(name) {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; Secure; SameSite=Strict`;
+}
+
   const onSubmit = (data) => {
     setLoading(true);
 
@@ -59,17 +78,19 @@ export const LoginPage = () => {
         navigate('/dashboard');
 
         setLoading(false);
-        if(localStorage?.getItem('remember')==='true'){
-          localStorage.setItem('RollNumber', data.rollNumber);
-          localStorage.setItem('password',data.password);
+        if(sessionStorage?.getItem('remember')==='true'){
+          setCookie('rollnumber',data.rollNumber,1);
+          sessionStorage.setItem('RollNumber', data.rollNumber);
+          
         }else{
-          localStorage?.removeItem('RollNumber');
-          localStorage?.removeItem('password');
+          deleteCookie('rollnumber')
+          sessionStorage?.removeItem('RollNumber');
+          
           
         }
         // axios.defaults.headers.common['Authorization']=res.data.token.access;
-        localStorage.setItem('accesstoken', res.data.token.access);
-        localStorage.setItem('refreshtoken', res.data.token.refresh);
+        sessionStorage.setItem('accesstoken', res.data.token.access);
+        sessionStorage.setItem('refreshtoken', res.data.token.refresh);
       })
       .catch((err) => {
         console.log(err);
@@ -103,10 +124,10 @@ export const LoginPage = () => {
 
   const checking=(e)=>{
     setRemember(e.nativeEvent.srcElement.checked);
-    localStorage?.setItem('remember',e.nativeEvent.srcElement.checked)
+    sessionStorage?.setItem('remember',e.nativeEvent.srcElement.checked)
   }
   var rememberMe=false;
-  if(localStorage?.getItem('remember')==='true'){
+  if(sessionStorage?.getItem('remember')==='true'){
     rememberMe=true;
   }else{
     rememberMe=false;
@@ -138,7 +159,7 @@ export const LoginPage = () => {
                   type="text"
                   label="Registration no./Employee ID."
                   fullWidth
-                  defaultValue={localStorage?.getItem('RollNumber')}
+                  defaultValue={getCookie('rollnumber')}
                   {...register("rollNumber", { required: true })}
                   autoComplete="off"
                   className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.rollNumber ? 'border-red-500' : 'border-gray-300'} placeholder-blue-300 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
@@ -159,7 +180,7 @@ export const LoginPage = () => {
                   id="password"
                   type={hide?"text":"password"}
                   label="password"
-                  defaultValue={localStorage?.getItem('password')}
+                  
                   {...register("password", { required: true })}
                   fullWidth
                   autoComplete="current-password"

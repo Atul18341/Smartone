@@ -40,8 +40,8 @@ const CollegeForm = () => {
   const navigate=useNavigate();
 
   useEffect(() => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (
         response.exp < Math.floor(Date.now() / 1000) ||
         response.role !== "admin"
@@ -69,7 +69,7 @@ const CollegeForm = () => {
       method: 'post',
       url: `${BaseUrl}/college/`,
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('accesstoken')}`,
+        'Authorization': `Bearer ${sessionStorage.getItem('accesstoken')}`,
         'Content-Type': 'multipart/form-data'
       },
       data: formData

@@ -131,9 +131,9 @@ export const BonafideForm = () => {
 
   
   const regenerateToken = () => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
-      const response1 = jwtDecode(localStorage?.getItem("refreshtoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
+      const response1 = jwtDecode(sessionStorage?.getItem("refreshtoken"));
       if (
         response.exp < Math.floor(Date.now() / 1000) ||
         response1.exp < Math.floor(Date.now() / 1000)
@@ -141,11 +141,11 @@ export const BonafideForm = () => {
         navigate("/login");
       } else {
         if (
-          localStorage.getItem("refreshtoken") &&
-          localStorage.getItem("accesstoken")
+          sessionStorage.getItem("refreshtoken") &&
+          sessionStorage.getItem("accesstoken")
         ) {
           let data = {
-            refresh: localStorage?.getItem("refreshtoken"),
+            refresh: sessionStorage?.getItem("refreshtoken"),
           };
 
           let config = {
@@ -154,7 +154,7 @@ export const BonafideForm = () => {
             url: "https://amarnath013.pythonanywhere.com/api/user/token/refresh/",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+              Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
             },
             data: data,
           };
@@ -163,7 +163,7 @@ export const BonafideForm = () => {
             .request(config)
             .then((response) => {
               console.log(JSON.stringify(response.data));
-              localStorage.setItem("accesstoken", response.data.access);
+              sessionStorage.setItem("accesstoken", response.data.access);
             })
             .catch((error) => {
               if (error?.message === "Request failed with status code 500") {
@@ -230,8 +230,8 @@ export const BonafideForm = () => {
   
   useEffect(() => {
 
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (
         response.exp < Math.floor(Date.now() / 1000) ||
         response.role !== "student"
@@ -245,8 +245,8 @@ export const BonafideForm = () => {
 
   useEffect(() => {
 
-    const token = localStorage.getItem("accesstoken");
-    const token1 = localStorage.getItem("refreshtoken");
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
    
     if (token && token1) {
       let currentDate = new Date();
@@ -273,11 +273,11 @@ export const BonafideForm = () => {
     axios
       .get(
         `${BaseUrl}/bonafide/?search=${
-          jwtDecode(localStorage?.getItem("accesstoken"))?.registration_number
+          jwtDecode(sessionStorage?.getItem("accesstoken"))?.registration_number
         }`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
           },
         }
       )
@@ -295,8 +295,8 @@ export const BonafideForm = () => {
 
   const onSubmit = (data) => {
 
-    const token = localStorage.getItem("accesstoken");
-    const token1 = localStorage.getItem("refreshtoken");
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
    
     if (token && token1) {
       let currentDate = new Date();
@@ -322,15 +322,15 @@ export const BonafideForm = () => {
     formData.append("college", "1");
     formData.append(
       "student",
-      localStorage?.getItem("accesstoken") === null
+      sessionStorage?.getItem("accesstoken") === null
         ? null
-        : jwtDecode(localStorage?.getItem("accesstoken")).user_id
+        : jwtDecode(sessionStorage?.getItem("accesstoken")).user_id
     );
     formData.append(
       "roll_no",
-      localStorage?.getItem("accesstoken") === null
+      sessionStorage?.getItem("accesstoken") === null
         ? null
-        : jwtDecode(localStorage?.getItem("accesstoken")).user_id
+        : jwtDecode(sessionStorage?.getItem("accesstoken")).user_id
     );
     formData.append("status", "pending");
     formData.append("supporting_document", data.file[0]);
@@ -341,7 +341,7 @@ export const BonafideForm = () => {
       .post(`${BaseUrl}/bonafide/`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
         },
       })
       .then((response) => {
@@ -372,6 +372,19 @@ export const BonafideForm = () => {
             autoHideDuration: 3000,
           });
           navigate("/login");
+        }
+
+        if(error?.response?.data?.errors?.college?.[0]==='Invalid pk \"1\" - object does not exist.')
+        {
+          enqueueSnackbar("College is not registered", {
+            variant: "error",
+            anchorOrigin: {
+              vertical: "bottom",
+              horizontal: "center",
+            },
+            autoHideDuration: 3000,
+          });
+          
         }
       });
   };

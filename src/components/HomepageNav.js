@@ -48,7 +48,7 @@ function HomepageNav(props) {
   };
 
   const Logout = () => {
-    localStorage.removeItem('accesstoken');
+    sessionStorage.removeItem('accesstoken');
     navigate('/');
   };
 

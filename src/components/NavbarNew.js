@@ -18,10 +18,10 @@ export const NavbarNew = () => {
   const [roll, setRoll] = useState("");
 
   useEffect(() => {
-    if (localStorage.getItem("accesstoken") === null) {
+    if (sessionStorage.getItem("accesstoken") === null) {
       navigate("/login");
     } else {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
 
       setRoll(response?.role);
     }
@@ -202,13 +202,13 @@ export const NavbarNew = () => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    if(localStorage.getItem("accesstoken")!==null){
+    if(sessionStorage.getItem("accesstoken")!==null){
     let config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `${BaseUrl}/notification/?search=${jwtDecode(localStorage?.getItem("accesstoken"))?.registration_number}`,
+      url: `${BaseUrl}/notification/?search=${jwtDecode(sessionStorage?.getItem("accesstoken"))?.registration_number}`,
       headers: {
-        Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
       },
     };
 
@@ -234,14 +234,14 @@ export const NavbarNew = () => {
       maxBodyLength: Infinity,
       url: `${BaseUrl}/notification/${id}/`,
       headers: {
-        Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
       },
     };
 
     axios
       .request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
+        
         setNotifications(
           notifications.filter((notification) => notification.id !== id)
         );
@@ -252,14 +252,14 @@ export const NavbarNew = () => {
   };
 
   const deleteAllNotifications = async () => {
-    if(localStorage.getItem("accesstoken")!==null){
+    if(sessionStorage.getItem("accesstoken")!==null){
     const deleteRequests = notifications.map((notification) => {
       let config = {
         method: "delete",
         maxBodyLength: Infinity,
         url: `${BaseUrl}/notification/${notification.id}/`,
         headers: {
-          Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+          Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
         },
       };
       return axios.request(config);
@@ -544,7 +544,7 @@ export const NavbarNew = () => {
             </div>
             <h1 className="text-xl font-bold ml-4 " onClick={(e)=>{
               navigate('/')
-            }}>Smart Campus</h1>
+            }}>SmartOne</h1>
           </div>
           <div className="flex items-center space-x-4">
             <div

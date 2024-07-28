@@ -18,10 +18,10 @@ const VerifySemesterRegistration = () => {
 
   useEffect(() => {
   
-    console.log(localStorage.getItem("accesstoken"))
+    console.log(sessionStorage.getItem("accesstoken"))
     
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (response.exp < Math.floor(Date.now() / 1000) || (response.role!=='hod' && response.role!=='admin') ) {
         navigate("/login");
       }
@@ -38,7 +38,7 @@ const VerifySemesterRegistration = () => {
           `${BaseUrl}/semester-registrations/`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+              Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
             },
           }
         );

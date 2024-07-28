@@ -13,15 +13,15 @@ export const BonafideCertificate = () => {
 
 
   const regenerateToken = () => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
-      const response1 = jwtDecode(localStorage?.getItem("refreshtoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
+      const response1 = jwtDecode(sessionStorage?.getItem("refreshtoken"));
       if (response.exp < Math.floor(Date.now() / 1000) || response1.exp < Math.floor(Date.now() / 1000)) {
         navigate("/login");
       }else{
-        if (localStorage.getItem("refreshtoken") && localStorage.getItem("accesstoken")) {
+        if (sessionStorage.getItem("refreshtoken") && sessionStorage.getItem("accesstoken")) {
           let data = {
-            refresh: localStorage?.getItem("refreshtoken"),
+            refresh: sessionStorage?.getItem("refreshtoken"),
           };
     
           let config = {
@@ -30,7 +30,7 @@ export const BonafideCertificate = () => {
             url: "https://amarnath013.pythonanywhere.com/api/user/token/refresh/",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+              Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
             },
             data: data,
           };
@@ -39,7 +39,7 @@ export const BonafideCertificate = () => {
             .request(config)
             .then((response) => {
               console.log(JSON.stringify(response.data));
-              localStorage.setItem("accesstoken", response.data.access);
+              sessionStorage.setItem("accesstoken", response.data.access);
             })
             .catch((error) => {
               if(error?.message==='Request failed with status code 500'){
@@ -70,11 +70,11 @@ export const BonafideCertificate = () => {
   useEffect(()=>{
     let data1 = JSON.stringify({
       college: 1,
-      student: jwtDecode(localStorage?.getItem("accesstoken")).user_id,
-      roll_no: jwtDecode(localStorage?.getItem("accesstoken")).user_id,
-      required_for: localStorage?.getItem("required_for"),
+      student: jwtDecode(sessionStorage?.getItem("accesstoken")).user_id,
+      roll_no: jwtDecode(sessionStorage?.getItem("accesstoken")).user_id,
+      required_for: sessionStorage?.getItem("required_for"),
       status: "approved",
-      supporting_documents: localStorage?.getItem("file"),
+      supporting_documents: sessionStorage?.getItem("file"),
       fee_structure: 'false',
     });
 
@@ -84,7 +84,7 @@ export const BonafideCertificate = () => {
       url: `${BaseUrl}/bonafide/`,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
       },
       data: data1,
     };
@@ -93,8 +93,8 @@ export const BonafideCertificate = () => {
       .request(config)
       .then((response) => {
         // console.log(response.data);
-        const token = localStorage.getItem("accesstoken");
-        const token1 = localStorage.getItem("refreshtoken");
+        const token = sessionStorage.getItem("accesstoken");
+        const token1 = sessionStorage.getItem("refreshtoken");
        
         if (token && token1) {
           let currentDate = new Date();
@@ -137,8 +137,8 @@ export const BonafideCertificate = () => {
   
 
   useEffect(() => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       console.log(response.exp);
       if (response.exp < Math.floor(Date.now() / 1000)|| response.role!=="student" ) {
         navigate("/login");
@@ -153,15 +153,15 @@ export const BonafideCertificate = () => {
       url: `${BaseUrl}/profile/`,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
       },
     };
 
     axios
       .request(config)
       .then((response) => {
-        const token = localStorage.getItem("accesstoken");
-        const token1 = localStorage.getItem("refreshtoken");
+        const token = sessionStorage.getItem("accesstoken");
+        const token1 = sessionStorage.getItem("refreshtoken");
        
         if (token && token1) {
           let currentDate = new Date();

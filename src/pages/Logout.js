@@ -8,12 +8,14 @@ import './logout.css';
 
 export const Logout = () => {
   const navigate = useNavigate();
-
+  function deleteCookie(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; Secure; SameSite=Strict`;
+  }
   const handleLogout = () => {
-    localStorage?.removeItem("accesstoken");
-    localStorage?.removeItem("refreshtoken");
-    localStorage?.removeItem("RollNumber");
-    localStorage?.removeItem("password");
+    sessionStorage?.removeItem("accesstoken");
+    sessionStorage?.removeItem("refreshtoken");
+    sessionStorage?.removeItem("RollNumber");
+    deleteCookie('rollnumber');
     navigate('/');
   };
 

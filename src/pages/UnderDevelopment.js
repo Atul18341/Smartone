@@ -10,8 +10,8 @@ function UnderDevelopment() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (
         response.token_type !== "access" 
         && response.exp<Math.floor(Date.now() / 1000)

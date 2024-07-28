@@ -96,7 +96,7 @@ export function SemesterRegistration() {
       maxBodyLength: Infinity,
       url: `${BaseUrl}/profile/`,
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
       },
     };
 
@@ -119,7 +119,7 @@ export function SemesterRegistration() {
       url: `${BaseUrl}/semester-registrations/?search=${userProfile?.personal_information?.registration_number}`,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
       },
     };
 
@@ -136,8 +136,8 @@ export function SemesterRegistration() {
   }, [userProfile]);
 
   useEffect(() => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (response.exp < Math.floor(Date.now() / 1000) || response.role !== "student" ) {
         navigate("/login");
       }
@@ -152,7 +152,7 @@ export function SemesterRegistration() {
       maxBodyLength: Infinity,
       url: `${BaseUrl}/semester/?search`,
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
       },
     };
 
@@ -184,7 +184,7 @@ export function SemesterRegistration() {
       maxBodyLength: Infinity,
       url: `${BaseUrl}/semester/?search=${semester}`,
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
       },
     };
 
@@ -265,7 +265,7 @@ export function SemesterRegistration() {
       maxBodyLength: Infinity,
       url: `${BaseUrl}/semester/?search`,
       headers: {
-        Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
       },
     };
 
@@ -279,7 +279,7 @@ export function SemesterRegistration() {
 
         let data1 = JSON.stringify({
           semester: b,
-          student: `${jwtDecode(localStorage?.getItem("accesstoken")).user_id}`,
+          student: `${jwtDecode(sessionStorage?.getItem("accesstoken")).user_id}`,
         });
 
         let config = {
@@ -288,7 +288,7 @@ export function SemesterRegistration() {
           url: `${BaseUrl}/semester-registrations/`,
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+            Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
           },
           data: data1,
         };

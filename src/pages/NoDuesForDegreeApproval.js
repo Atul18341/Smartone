@@ -26,15 +26,15 @@ export const NoDuesForDegreeApproval = () => {
   const [loading,setLoading]=useState(true);
 
   const regenerateToken = () => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
-      const response1 = jwtDecode(localStorage?.getItem("refreshtoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
+      const response1 = jwtDecode(sessionStorage?.getItem("refreshtoken"));
       if (response.exp < Math.floor(Date.now() / 1000) || response1.exp < Math.floor(Date.now() / 1000)) {
         navigate("/login");
       }else{
-        if (localStorage.getItem("refreshtoken") && localStorage.getItem("accesstoken")) {
+        if (sessionStorage.getItem("refreshtoken") && sessionStorage.getItem("accesstoken")) {
           let data = {
-            refresh: localStorage?.getItem("refreshtoken"),
+            refresh: sessionStorage?.getItem("refreshtoken"),
           };
     
           let config = {
@@ -43,7 +43,7 @@ export const NoDuesForDegreeApproval = () => {
             url: "https://amarnath013.pythonanywhere.com/api/user/token/refresh/",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+              Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
             },
             data: data,
           };
@@ -52,7 +52,7 @@ export const NoDuesForDegreeApproval = () => {
             .request(config)
             .then((response) => {
               console.log(JSON.stringify(response.data));
-              localStorage.setItem("accesstoken", response.data.access);
+              sessionStorage.setItem("accesstoken", response.data.access);
             })
             .catch((error) => {
               if(error?.message==='Request failed with status code 500'){
@@ -81,8 +81,8 @@ export const NoDuesForDegreeApproval = () => {
    
   };
   useEffect(() => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (
         response.exp < Math.floor(Date.now() / 1000) ||
         (response.role !== "department" && response.role!=='admin')
@@ -95,17 +95,17 @@ export const NoDuesForDegreeApproval = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (localStorage.getItem("accesstoken") !== null) {
+    if (sessionStorage.getItem("accesstoken") !== null) {
       setId(
         parseInt(
           jwtDecode(
-            localStorage?.getItem("accesstoken")
+            sessionStorage?.getItem("accesstoken")
           ).registration_number.replace("DEP", "")
         )
       );
       let current_id = parseInt(
         jwtDecode(
-          localStorage?.getItem("accesstoken")
+          sessionStorage?.getItem("accesstoken")
         ).registration_number.replace("DEP", "")
       );
 
@@ -114,7 +114,7 @@ export const NoDuesForDegreeApproval = () => {
         maxBodyLength: Infinity,
         url: `${BaseUrl}/No-dues-list/`,
         headers: {
-          Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+          Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
         },
       };
 
@@ -122,8 +122,8 @@ export const NoDuesForDegreeApproval = () => {
         .request(config)
         .then((response) => {
           console.log(response?.data);
-          const token = localStorage.getItem("accesstoken");
-          const token1 = localStorage.getItem("refreshtoken");
+          const token = sessionStorage.getItem("accesstoken");
+          const token1 = sessionStorage.getItem("refreshtoken");
          
           if (token && token1) {
             let currentDate = new Date();
@@ -240,19 +240,19 @@ export const NoDuesForDegreeApproval = () => {
       url: `${BaseUrl}/No-dues-list/${user_id}/departments/${id}/`,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
       },
       data: data,
     };
-    const token = localStorage.getItem("accesstoken");
-    const token1 = localStorage.getItem("refreshtoken");
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
    
     if (token && token1) {
     axios
       .request(config)
       .then((response) => {
-        const token = localStorage.getItem("accesstoken");
-        const token1 = localStorage.getItem("refreshtoken");
+        const token = sessionStorage.getItem("accesstoken");
+        const token1 = sessionStorage.getItem("refreshtoken");
        
         if (token && token1) {
           let currentDate = new Date();
@@ -329,21 +329,21 @@ export const NoDuesForDegreeApproval = () => {
           url: `${BaseUrl}/No-dues-list/${user_id}/departments/${id}/`,
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+            Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
           },
           data: data,
         };
     
-        const token = localStorage.getItem("accesstoken");
-    const token1 = localStorage.getItem("refreshtoken");
+        const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
    
     if (token && token1) {
         axios
           .request(config)
           .then((response) => {
 
-            const token = localStorage.getItem("accesstoken");
-            const token1 = localStorage.getItem("refreshtoken");
+            const token = sessionStorage.getItem("accesstoken");
+            const token1 = sessionStorage.getItem("refreshtoken");
            
             if (token && token1) {
               let currentDate = new Date();
@@ -426,21 +426,21 @@ export const NoDuesForDegreeApproval = () => {
       url: `${BaseUrl}/No-dues-list/${user_id}/departments/${id}/`,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
       },
       data: data,
     };
 
-    const token = localStorage.getItem("accesstoken");
-    const token1 = localStorage.getItem("refreshtoken");
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
    
     if (token && token1) {
     axios
       .request(config)
       .then((response) => {
 
-        const token = localStorage.getItem("accesstoken");
-        const token1 = localStorage.getItem("refreshtoken");
+        const token = sessionStorage.getItem("accesstoken");
+        const token1 = sessionStorage.getItem("refreshtoken");
        
         if (token && token1) {
           let currentDate = new Date();

@@ -109,15 +109,15 @@ export const HostelRoomRequest = () => {
   }, []);
 
   const regenerateToken = () => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
-      const response1 = jwtDecode(localStorage?.getItem("refreshtoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
+      const response1 = jwtDecode(sessionStorage?.getItem("refreshtoken"));
       if (response.exp < Math.floor(Date.now() / 1000) || response1.exp < Math.floor(Date.now() / 1000)) {
         navigate("/login");
       }else{
-        if (localStorage.getItem("refreshtoken") && localStorage.getItem("accesstoken")) {
+        if (sessionStorage.getItem("refreshtoken") && sessionStorage.getItem("accesstoken")) {
           let data = {
-            refresh: localStorage?.getItem("refreshtoken"),
+            refresh: sessionStorage?.getItem("refreshtoken"),
           };
     
           let config = {
@@ -126,7 +126,7 @@ export const HostelRoomRequest = () => {
             url: "https://amarnath013.pythonanywhere.com/api/user/token/refresh/",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+              Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
             },
             data: data,
           };
@@ -135,7 +135,7 @@ export const HostelRoomRequest = () => {
             .request(config)
             .then((response) => {
               console.log(JSON.stringify(response.data));
-              localStorage.setItem("accesstoken", response.data.access);
+              sessionStorage.setItem("accesstoken", response.data.access);
             })
             .catch((error) => {
               if(error?.message==='Request failed with status code 500'){
@@ -167,7 +167,7 @@ export const HostelRoomRequest = () => {
 
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("accesstoken");
+    const accessToken = sessionStorage.getItem("accesstoken");
 
     if (!accessToken) {
       navigate("/login");
@@ -182,8 +182,8 @@ export const HostelRoomRequest = () => {
 
     const fetchData = async () => {
 
-      const token = localStorage.getItem("accesstoken");
-        const token1 = localStorage.getItem("refreshtoken");
+      const token = sessionStorage.getItem("accesstoken");
+        const token1 = sessionStorage.getItem("refreshtoken");
 
       if(token && token1){ 
       try {
@@ -198,7 +198,7 @@ export const HostelRoomRequest = () => {
         setUserProfile(userProfileResponse.data);
 
         const hostelAllotmentsResponse = await axios.get(
-          `${BaseUrl}/hostel-allotments/?search=${jwtDecode(localStorage?.getItem("accesstoken"))?.registration_number}`,
+          `${BaseUrl}/hostel-allotments/?search=${jwtDecode(sessionStorage?.getItem("accesstoken"))?.registration_number}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -209,7 +209,7 @@ export const HostelRoomRequest = () => {
         setResult(hostelAllotmentsResponse.data.reverse());
 
         const hostelRoomAllotmentsResponse = await axios.get(
-          `${BaseUrl}/hostel-room-allotments/?search=${jwtDecode(localStorage?.getItem("accesstoken"))?.registration_number}`,
+          `${BaseUrl}/hostel-room-allotments/?search=${jwtDecode(sessionStorage?.getItem("accesstoken"))?.registration_number}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -217,8 +217,8 @@ export const HostelRoomRequest = () => {
           }
         );
 
-        const token = localStorage.getItem("accesstoken");
-        const token1 = localStorage.getItem("refreshtoken");
+        const token = sessionStorage.getItem("accesstoken");
+        const token1 = sessionStorage.getItem("refreshtoken");
        
         if (token && token1) {
           let currentDate = new Date();
@@ -302,8 +302,8 @@ export const HostelRoomRequest = () => {
     formData.append("cgpa", data.cgpa);
     formData.append("latest_marksheet", data.file);
 
-    const token = localStorage.getItem("accesstoken");
-    const token1 = localStorage.getItem("refreshtoken");
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
 
     if(token && token1){
     try {
@@ -312,15 +312,15 @@ export const HostelRoomRequest = () => {
         formData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
             "Content-Type": "multipart/form-data",
           },
         }
       );
       console.log("Request sent successfully:", response.data);
 
-      const token = localStorage.getItem("accesstoken");
-      const token1 = localStorage.getItem("refreshtoken");
+      const token = sessionStorage.getItem("accesstoken");
+      const token1 = sessionStorage.getItem("refreshtoken");
      
       if (token && token1) {
         let currentDate = new Date();

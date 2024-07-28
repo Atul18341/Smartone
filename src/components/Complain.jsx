@@ -160,15 +160,15 @@ const ComplaintForm = () => {
 
   
   const regenerateToken = () => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
-      const response1 = jwtDecode(localStorage?.getItem("refreshtoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
+      const response1 = jwtDecode(sessionStorage?.getItem("refreshtoken"));
       if (response.exp < Math.floor(Date.now() / 1000) || response1.exp < Math.floor(Date.now() / 1000)) {
         navigate("/login");
       }else{
-        if (localStorage.getItem("refreshtoken") && localStorage.getItem("accesstoken")) {
+        if (sessionStorage.getItem("refreshtoken") && sessionStorage.getItem("accesstoken")) {
           let data = {
-            refresh: localStorage?.getItem("refreshtoken"),
+            refresh: sessionStorage?.getItem("refreshtoken"),
           };
     
           let config = {
@@ -177,7 +177,7 @@ const ComplaintForm = () => {
             url: "https://amarnath013.pythonanywhere.com/api/user/token/refresh/",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage?.getItem("accesstoken")}`,
+              Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
             },
             data: data,
           };
@@ -186,7 +186,7 @@ const ComplaintForm = () => {
             .request(config)
             .then((response) => {
               console.log(JSON.stringify(response.data));
-              localStorage.setItem("accesstoken", response.data.access);
+              sessionStorage.setItem("accesstoken", response.data.access);
             })
             .catch((error) => {
               if(error?.message==='Request failed with status code 500'){
@@ -226,8 +226,8 @@ const ComplaintForm = () => {
   }, []);
 
   useEffect(() => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (
         response.exp < Math.floor(Date.now() / 1000) ||
         (response.role !== "student" && response.role !== "admin")
@@ -240,8 +240,8 @@ const ComplaintForm = () => {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("accesstoken");
-    const token1 = localStorage.getItem("refreshtoken");
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
     if (!token && !token1) {
       navigate("/login");
   
@@ -314,13 +314,13 @@ const ComplaintForm = () => {
   });
 
   useEffect(() => {
-    if (localStorage.getItem("accesstoken") !== null && localStorage.getItem("refreshtoken")!==null) {
+    if (sessionStorage.getItem("accesstoken") !== null && sessionStorage.getItem("refreshtoken")!==null) {
       let config = {
         method: "get",
         maxBodyLength: Infinity,
         url: `${BaseUrl}/complaints/`,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
         },
       };
 
@@ -328,8 +328,8 @@ const ComplaintForm = () => {
         .request(config)
         .then((response) => {
           setPreviousRecord(response.data);
-          const token = localStorage.getItem("accesstoken");
-          const token1 = localStorage.getItem("refreshtoken");
+          const token = sessionStorage.getItem("accesstoken");
+          const token1 = sessionStorage.getItem("refreshtoken");
          
           if (token && token1) {
             let currentDate = new Date();
@@ -361,11 +361,11 @@ const ComplaintForm = () => {
   }, []);
 
   useEffect(() => {
-    // console.log(localStorage.getItem("accesstoken"))
-    if (localStorage?.getItem("accesstoken") === null) {
+    // console.log(sessionStorage.getItem("accesstoken"))
+    if (sessionStorage?.getItem("accesstoken") === null) {
       navigate("/login");
-    } else if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    } else if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (response.exp < Math.floor(Date.now() / 1000)) {
         navigate("/login");
       }
@@ -395,7 +395,7 @@ const ComplaintForm = () => {
       url: `${BaseUrl}/complaints/`,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
       },
       data: data1,
     };
@@ -403,8 +403,8 @@ const ComplaintForm = () => {
     axios
       .request(config)
       .then((response) => {
-        const token = localStorage.getItem("accesstoken");
-        const token1 = localStorage.getItem("refreshtoken");
+        const token = sessionStorage.getItem("accesstoken");
+        const token1 = sessionStorage.getItem("refreshtoken");
        
         if (token && token1) {
           let currentDate = new Date();

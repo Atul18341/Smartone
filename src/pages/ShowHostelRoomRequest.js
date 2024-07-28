@@ -14,8 +14,8 @@ const ShowHostelRoomRequest = () => {
   const navigate=useNavigate();
 
   useEffect(() => {
-    if (localStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    if (sessionStorage?.getItem("accesstoken")) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (
         response.exp < Math.floor(Date.now() / 1000) ||
         response.role !== "caretaker"
@@ -33,7 +33,7 @@ const ShowHostelRoomRequest = () => {
       maxBodyLength: Infinity,
       url: `${BaseUrl}/hostel-allotments/?search=applied`,
       headers: { 
-        'Authorization': `Bearer ${localStorage?.getItem('accesstoken')}`
+        'Authorization': `Bearer ${sessionStorage?.getItem('accesstoken')}`
       }
     };
 

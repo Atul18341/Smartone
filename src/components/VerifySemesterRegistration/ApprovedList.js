@@ -20,7 +20,7 @@ const ApprovedList = () => {
           url: `${BaseUrl}/verify-semester-registration/?status=approved`,
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accesstoken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
           },
         };
 
