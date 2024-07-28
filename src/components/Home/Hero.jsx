@@ -57,7 +57,7 @@ export const Hero = () => {
               style={{width:"100vw",height:"470px",objectFit:"contain"}}
             />
             <div className="absolute inset-0 bg-black bg-opacity-60 flex flex-col justify-center items-center text-center text-white p-4">
-              <h2 className="text-6xl font-bold">{slide.title}</h2>
+              <h2 className="text-4xl font-bold">{slide.title}</h2>
               <p className="text-lg mt-2">{slide.subtitle}</p>
               <Button variant="contained" style={{marginTop:"15px"}} onClick={(e)=>{
                 navigate('/login')

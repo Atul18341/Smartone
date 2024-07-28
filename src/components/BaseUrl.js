@@ -1,1 +1,1 @@
-export const BaseUrl="https://amarnath013.pythonanywhere.com/api/user"
+export const BaseUrl="https://smartone.pythonanywhere.com/api/user"
