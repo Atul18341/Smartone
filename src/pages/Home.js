@@ -14,7 +14,7 @@ export const Home = () => {
   return (
     <div className="App overflow-x-hidden">
       <Helmet>
-        <title>Smartone:Home</title>
+        <title>Smartone: A Smart Campus Initiative</title>
       </Helmet>
       <Header />
       <main className="animate-fade">
