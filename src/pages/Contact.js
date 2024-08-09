@@ -51,8 +51,7 @@ export const Contact = () => {
                Service Request form
               </p>
               <Typography variant="body1" color="text.secondary">
-                Have a question or want to get in touch? Fill out the form below
-                and we'll get back to you soon!
+                Want to use of our platform?
               </Typography>
               <Box sx={{ py: 1, mt: 2 }}>
                 <TextField fullWidth label="Name" variant="outlined" />
