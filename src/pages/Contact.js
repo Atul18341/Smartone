@@ -50,7 +50,7 @@ export const Contact = () => {
               >
                Service Request form
               </p>
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body1" color="text.secondary" textAlign="center">
                 Want to use of our platform?
               </Typography>
               <Box sx={{ py: 1, mt: 2 }}>
