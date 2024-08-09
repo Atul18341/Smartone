@@ -48,7 +48,7 @@ export const Contact = () => {
                   marginTop:"10px"
                 }}
               >
-                Contact Us
+               Service Request form
               </p>
               <Typography variant="body1" color="text.secondary">
                 Have a question or want to get in touch? Fill out the form below
