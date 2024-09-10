@@ -1,10 +1,8 @@
 import {
   Box,
-  Button,
   CircularProgress,
   Divider,
   Grid,
-  TextField,
   Typography,
 } from "@mui/material";
 import "../App.css";
@@ -18,16 +16,19 @@ import { jwtDecode } from "jwt-decode";
 import { BaseUrl } from "./BaseUrl";
 import { enqueueSnackbar } from "notistack";
 
-
 export const ProfileMainBody = () => {
   const [userProfile, setUserProfile] = useState([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [college, setCollege] = useState("");
 
   useEffect(() => {
     if (sessionStorage?.getItem("accesstoken")) {
       const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
-      if (response.exp < Math.floor(Date.now() / 1000)|| response.role!=="student" ) {
+      if (
+        response.exp < Math.floor(Date.now() / 1000) ||
+        response.role !== "student"
+      ) {
         navigate("/login");
       }
     } else {
@@ -36,71 +37,50 @@ export const ProfileMainBody = () => {
   }, []);
 
   useEffect(() => {
-    let config = {
-      method: "GET",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/profile/`,
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
-      },
-    };
+    const token = sessionStorage?.getItem("accesstoken");
+    const token1 = sessionStorage?.getItem("refreshtoken");
 
-    axios
-      .request(config)
-      .then((response) => {
-        setUserProfile(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.log(error);
-        if(error?.response?.data?.errors?.detail==="Given token not valid for any token type"){
-          enqueueSnackbar("Logging out", {
-            variant: "error",
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "center",
-            },
-            autoHideDuration: 3000,
-          });  
-          navigate("/login");
-        }
-      });
+    if (token && token1) {
+      const response = jwtDecode(token);
+
+      let config = {
+        method: "GET",
+        maxBodyLength: Infinity,
+        url: `${BaseUrl}/${response?.college}/profile/`,
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
+        },
+      };
+
+      axios
+        .request(config)
+        .then((response) => {
+          console.log(response.data);
+          setUserProfile(response.data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+          if (
+            error?.response?.data?.errors?.detail ===
+            "Given token not valid for any token type"
+          ) {
+            enqueueSnackbar("Logging out", {
+              variant: "error",
+              anchorOrigin: {
+                vertical: "bottom",
+                horizontal: "center",
+              },
+              autoHideDuration: 3000,
+            });
+            navigate("/login");
+          }
+        });
+    } else {
+      navigate("/login");
+    }
   }, []);
 
-  // const handleChange=(e)=>{
-
-  //   const formData=new FormData();
-  //   console.log(e.target.files[0]);
-  //   formData.append("profile_picture",e.target.files[0]);
-
-  //   let data = JSON.stringify({
-  //     "personal_information": {
-  //       "profile_picture":formData
-  //     },
-  //     "contact_information": {},
-  //     "academic_information": {}
-  //   });
-
-  //   let config = {
-  //     method: 'put',
-  //     maxBodyLength: Infinity,
-  //     url: 'https://amarnath013.pythonanywhere.com/api/user/profile/',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'Authorization': `Bearer ${sessionStorage.getItem('accesstoken')}`
-  //     },
-  //     data : data
-  //   };
-
-  //   axios.request(config)
-  //   .then((response) => {
-  //     console.log(JSON.stringify(response.data));
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
-
-  // }
   if (loading) {
     return (
       <Box
@@ -128,12 +108,9 @@ export const ProfileMainBody = () => {
           height: "calc(100vh - 5px)",
           overflowY: "scroll",
           zIndex: "6",
-          overflowX:"hidden"
+          overflowX: "hidden",
         }}
       >
-        <center>
-        
-        </center>
         <Box className="text-center">
           {userProfile?.personal_information?.profile_picture !== null ? (
             <img
@@ -146,7 +123,7 @@ export const ProfileMainBody = () => {
                 borderRadius: "50%",
                 filter: "opacity(1)",
                 border: "2px solid whitesmoke",
-                objectFit:"cover"
+                objectFit: "cover",
               }}
             />
           ) : (
@@ -169,11 +146,16 @@ export const ProfileMainBody = () => {
               Basic details
             </p>
 
-            <FaUserEdit
-              style={{ fontSize: "1.6rem" }}
-              className="text-gray-500"
-              onClick={(e) => navigate("/profileEdit")}
-            />
+            <Box onClick={(e) => navigate("/profileEdit")} style={{cursor:"pointer"}}>
+              <div style={{display:"flex",gap:"5px"}}>
+              <FaUserEdit
+                style={{ fontSize: "1.2rem" }}
+                className="text-gray-500"
+                
+              />
+              <span style={{color:"rgb(107, 169, 169)"}}>Edit</span>
+              </div>
+            </Box>
           </div>
           <Box className="bg-gray-100 p-3 rounded-2xl mt-6">
             <Grid container className="mt-3">
@@ -553,7 +535,7 @@ export const ProfileMainBody = () => {
                 style={{ marginTop: "0px", marginBottom: "5px" }}
               >
                 <Typography variant="p" style={{ fontSize: "1.2rem" }}>
-                  Registration_number
+                  Registration No.
                 </Typography>
               </Grid>
               <Grid item lg={4} sm={12} xs={12} md={12}>
@@ -588,7 +570,7 @@ export const ProfileMainBody = () => {
                 }}
               >
                 <Typography variant="p" style={{ fontSize: "1.2rem" }}>
-                  Enrollment_date
+                  Enrollment Date
                 </Typography>
               </Grid>
               <Grid item lg={4} sm={12} xs={12} md={12}>
@@ -869,9 +851,7 @@ export const ProfileMainBody = () => {
                 </Typography>
               </Grid>
               <Grid item lg={4} sm={12} xs={12} md={12}>
-                <Typography variant="p">
-                  {userProfile?.academic_information?.college_name || <p>NA</p>}
-                </Typography>
+                <Typography variant="p">{userProfile?.academic_information?.college_name || <p>NA</p>}</Typography>
               </Grid>
 
               <Divider

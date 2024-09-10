@@ -3,8 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import "./NavbarNew.css"; // If you have custom CSS, keep this import
 import { jwtDecode } from "jwt-decode";
 import { IoIosNotificationsOutline } from "react-icons/io";
-import { CgMenuLeftAlt, CgProfile ,CgMenuRightAlt} from "react-icons/cg";
-import { Box, Button, Divider } from "@mui/material";
+import { CgMenuLeftAlt, CgProfile, CgMenuRightAlt } from "react-icons/cg";
+import { Box, Button, Divider, Typography } from "@mui/material";
 import axios from "axios";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -16,6 +16,8 @@ dayjs.extend(relativeTime);
 export const NavbarNew = () => {
   const navigate = useNavigate();
   const [roll, setRoll] = useState("");
+  const [result, setResult] = useState([]);
+  const [name,setName]=useState([]);
 
   useEffect(() => {
     if (sessionStorage.getItem("accesstoken") === null) {
@@ -25,8 +27,63 @@ export const NavbarNew = () => {
 
       setRoll(response?.role);
     }
-  }, []);
+  }, [navigate]);
 
+  useEffect(() => {
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
+
+    if (token && token1) {
+      const response = jwtDecode(token);
+
+      axios
+        .get(
+          `${BaseUrl}/${response?.college}/colleges/${response?.college}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setResult(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
+
+    if (token && token1) {
+      const response = jwtDecode(token);
+
+      axios
+        .get(
+          `${BaseUrl}/${response?.college}/profile/`,
+          {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          setName(response?.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const mainOptions = [
     "General",
@@ -61,18 +118,35 @@ export const NavbarNew = () => {
     { name: "Security Money Return Request", link: "/underDevelopment" },
   ];
   const teachers = [
-
     { name: "Add Subject", link: "/sem-sub-register" },
-     { name: "Add Branch", link: "/sem-branch-register" },
-     { name: "Upload/Check Assignment", link: "/underDevelopment" },
+
+    { name: "Upload/Check Assignment", link: "/underDevelopment" },
     { name: "Upload Internal Sem Marks", link: "/underDevelopment" },
-    
+
     // { name: "Semester Registration Request", link: "/verifySemesterRegistration" }
+  ];
+
+  const office = [
+    { name: "Add Branch", link: "/sem-branch-register" },
+    { name: "User Management", link: "/user-management" },
+    {
+      name: "Register",
+      link: sessionStorage?.getItem("accesstoken")
+        ? `/register/${
+            jwtDecode(sessionStorage?.getItem("accesstoken")).college
+          }`
+        : null,
+    },
+    { name: "Generate Departments", link: "/generate-departments" },
   ];
 
   const fees_add = [
     { name: "Add Fees", link: "/add-fees" },
     { name: "Hostel Room Allotment", link: "/hostel-room-allotment" },
+    { name: "Hostel No Due Request", link: "/hostel-no-due-request" },
+    { name: "Hostel/Mess Fee Payment", link: "/caretaker-dashboard" },
+    { name: "Room Register", link: "/room-register" },
+
     // { name: "Show Hostel Room Requests", link: "/hostel-room-allotment-requests" },
   ];
 
@@ -81,15 +155,18 @@ export const NavbarNew = () => {
     { name: "Complaints", link: "/complaints" },
   ];
 
-  const department=[
-    { name: "No dues for degree", link: "/No-dues-for-degree-approval" }
-  ]
+  const department = [
+    { name: "No dues for degree", link: "/No-dues-for-degree-approval" },
+  ];
 
   const admin = [
-    { name: "Add college", link: "/add-college" },
-    { name: "Add Subject", link: "/sem-sub-register" },
-    { name: "Add Branch", link: "/sem-branch-register" },
-    { name: "Verify Semester Registration",link: "/verifySemesterRegistration"}
+    // { name: "Add college", link: "/add-college" },
+    // { name: "Add Subject", link: "/sem-sub-register" },
+    // { name: "Add Branch", link: "/sem-branch-register" },
+    // {
+    //   name: "Verify Semester Registration",
+    //   link: "/verifySemesterRegistration",
+    // },
   ];
 
   const hod = [
@@ -97,19 +174,27 @@ export const NavbarNew = () => {
       name: "Verify Semester Registration",
       link: "/verifySemesterRegistration",
     },
-    { name: "Update Branch Subjects", link: "/underDevelopment" },
+    { name: "Add Subjects", link: "/sem-sub-register" },
+    { name: "Add Semester", link: "/sem-register" },
     { name: "Sign No Dues(for TC)", link: "/underDevelopment" },
   ];
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isNestedDropdownGeneralOpen, setIsNestedDropdownGeneralOpen] =
-    useState(false);
-  const [isNestedDropdownAcademicOpen, setIsNestedDropdownAcademicOpen] =
-    useState(false);
-  const [isNestedDropdownResidentialOpen, setIsNestedDropdownResidentialOpen] =
-    useState(false);
-  const [isNestedDropdownOthersOpen, setIsNestedDropdownOthersOpen] =
-    useState(false);
+  const [
+    isNestedDropdownGeneralOpen,
+    setIsNestedDropdownGeneralOpen,
+  ] = useState(false);
+  const [
+    isNestedDropdownAcademicOpen,
+    setIsNestedDropdownAcademicOpen,
+  ] = useState(false);
+  const [
+    isNestedDropdownResidentialOpen,
+    setIsNestedDropdownResidentialOpen,
+  ] = useState(false);
+  const [isNestedDropdownOthersOpen, setIsNestedDropdownOthersOpen] = useState(
+    false
+  );
   const [
     isNestedDropdownOther_responsibilitiesOpen,
     setIsNestedDropdownOther_responsibilitiesOpen,
@@ -198,50 +283,57 @@ export const NavbarNew = () => {
     setIsNestedDropdownFacultyAcadamicOpen(false);
     setIsNestedDropdownHODOpen(!isNestedDropdownHODOpen);
   };
-  const [hide, setHide] = useState(false);
+
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    if(sessionStorage.getItem("accesstoken")!==null){
-    let config = {
-      method: "get",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/notification/?search=${jwtDecode(sessionStorage?.getItem("accesstoken"))?.registration_number}`,
-      headers: {
-        Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
-      },
-    };
+    if (sessionStorage.getItem("accesstoken") !== null) {
+      let config = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${BaseUrl}/notification/?search=${
+          jwtDecode(sessionStorage?.getItem("accesstoken"))?.registration_number
+        }`,
+        headers: {
+          Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
+        },
+      };
 
-    axios
-      .request(config)
-      .then((response) => {
-     
-        setNotifications(response?.data?.reverse());
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    }else{
-      navigate('/login');
+      axios
+        .request(config)
+        .then((response) => {
+          setNotifications(response?.data?.reverse());
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      navigate("/login");
     }
   }, []);
 
   const [showNotifications, setShowNotifications] = useState(false);
 
   const deleteNotification = (id) => {
+    let data = JSON.stringify({
+      ids: [id],
+    });
+
     let config = {
       method: "delete",
       maxBodyLength: Infinity,
-      url: `${BaseUrl}/notification/${id}/`,
+      url: `${BaseUrl}/notification/delete_all_notification/`,
       headers: {
+        "Content-Type": "application/json",
         Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
       },
+      data: data,
     };
 
     axios
       .request(config)
       .then((response) => {
-        
+        console.log(JSON.stringify(response.data));
         setNotifications(
           notifications.filter((notification) => notification.id !== id)
         );
@@ -252,39 +344,45 @@ export const NavbarNew = () => {
   };
 
   const deleteAllNotifications = async () => {
-    if(sessionStorage.getItem("accesstoken")!==null){
-    const deleteRequests = notifications.map((notification) => {
-      let config = {
-        method: "delete",
-        maxBodyLength: Infinity,
-        url: `${BaseUrl}/notification/${notification.id}/`,
-        headers: {
-          Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
-        },
-      };
-      return axios.request(config);
-    });
+    if (sessionStorage.getItem("accesstoken") !== null) {
+      const deleteRequests = notifications.map((notification) => {
+        let config = {
+          method: "delete",
+          maxBodyLength: Infinity,
+          url: `${BaseUrl}/notification/${notification.id}/`,
+          headers: {
+            Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
+          },
+        };
+        return axios.request(config);
+      });
 
-    try {
-      await Promise.all(deleteRequests);
-      setNotifications([]);
-    } catch (error) {
-      console.log(error);
+      try {
+        await Promise.all(deleteRequests);
+        setNotifications([]);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      navigate("/login");
     }
-  }else{
-    navigate('/login');
-  }
   };
 
   return (
     <>
-      <nav className="bg-gray-200 text-[#041E49] px-4 py-5 shadow-md" style={{zIndex:"20"}}>
+      <nav
+        className="bg-gray-200 text-[#041E49] px-4 py-5 shadow-md"
+        style={{ zIndex: "20" }}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="relative" onClick={toggleDropdown}>
               <div className="cursor-pointer flex items-center space-x-2">
-               {isDropdownOpen ? <CgMenuRightAlt style={{fontSize:"1.3rem"}}/>:<CgMenuLeftAlt style={{fontSize:"1.3rem"}}/>}
-               
+                {isDropdownOpen ? (
+                  <CgMenuRightAlt style={{ fontSize: "1.3rem" }} />
+                ) : (
+                  <CgMenuLeftAlt style={{ fontSize: "1.3rem" }} />
+                )}
               </div>
               {isDropdownOpen && (
                 <div className="absolute left-0 mt-2 w-64 bg-white text-black rounded-lg shadow-lg z-50">
@@ -356,7 +454,7 @@ export const NavbarNew = () => {
                         </div>
                       </>
                     )}
-                    {roll === "admin" && (
+                    {roll === "super-admin" && (
                       <div
                         className="hover:bg-blue-50 px-4 py-2 cursor-pointer"
                         onClick={toggleNestedDropdownResidential}
@@ -378,7 +476,7 @@ export const NavbarNew = () => {
                         )}
                       </div>
                     )}
-                     {roll === "department" && (
+                    {roll === "department" && (
                       <div
                         className="hover:bg-blue-50 px-4 py-2 cursor-pointer"
                         onClick={toggleNestedDropdownResidential}
@@ -400,7 +498,7 @@ export const NavbarNew = () => {
                         )}
                       </div>
                     )}
-                    {(roll === "teacher" || roll==="faculty") && (
+                    {(roll === "teacher" || roll === "faculty") && (
                       <div
                         className="hover:bg-blue-50 px-4 py-2 cursor-pointer"
                         onClick={toggleNestedDropdownResidential}
@@ -409,6 +507,29 @@ export const NavbarNew = () => {
                         {isNestedDropdownResidentialOpen && (
                           <div className="mt-2 bg-white rounded-lg shadow-md">
                             {teachers.map((item, index) => (
+                              <Link
+                                key={index}
+                                className="block px-4 py-2 text-gray-800 hover:bg-blue-100"
+                                to={item.link}
+                                style={{ textDecoration: "none" }}
+                              >
+                                {item.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {roll === "office" && (
+                      <div
+                        className="hover:bg-blue-50 px-4 py-2 cursor-pointer"
+                        onClick={toggleNestedDropdownResidential}
+                      >
+                        Action
+                        {isNestedDropdownResidentialOpen && (
+                          <div className="mt-2 bg-white rounded-lg shadow-md">
+                            {office.map((item, index) => (
                               <Link
                                 key={index}
                                 className="block px-4 py-2 text-gray-800 hover:bg-blue-100"
@@ -537,15 +658,41 @@ export const NavbarNew = () => {
                         )}
                       </div>
                     )}
-                    
                   </div>
                 </div>
               )}
             </div>
-            <h1 className="text-xl font-bold ml-4 " onClick={(e)=>{
-              navigate('/')
-            }}>SmartOne</h1>
+            <h1
+              className="text-xl font-bold ml-4 "
+              onClick={(e) => {
+                navigate("/");
+              }}
+            >
+              Smart One
+            </h1>
           </div>
+          <Box sx={{display:{
+            xs:"none",
+            sm:"none",
+            md:"block",
+            lg:"block"
+          }}}>
+            <div >
+            {result?.college_logo && result?.college_name && 
+            <span style={{display:"flex",gap:"5px"}}>
+            <img
+                src={`${result?.college_logo}`}
+                alt="College Logo"
+                style={{width:"40px",borderRadius:"10px"}}
+                
+              />
+            <span>{result?.college_name}</span>
+            </span>}
+            </div>
+           
+           
+            
+          </Box>
           <div className="flex items-center space-x-4">
             <div
               className="relative cursor-pointer"
@@ -559,14 +706,13 @@ export const NavbarNew = () => {
               )}
             </div>
             {showNotifications && (
-              <div
+              <Box
                 className="bg-white shadow-lg rounded-md z-10"
-                style={{
+                sx={{
                   position: "absolute",
                   top: "54px",
                   right: "24px",
-                  width: "16.7rem",
-                  backgroundColor: "whitesmoke",
+                  width: { lg: "20.7rem", xs: "16.7rem" },
                 }}
               >
                 <Box p={2} style={{ overflowY: "scroll", height: "450px" }}>
@@ -588,19 +734,29 @@ export const NavbarNew = () => {
                         key={notification.id}
                         className="flex justify-between items-center py-2 font-semibold"
                       >
-                        <div>
-                          <p>{notification.message}</p>
-                          <p className="text-xs text-gray-500">
-                            {dayjs(notification.time).fromNow()}
-                          </p>
-                        </div>
-                        <Button
-                          size="small"
-                          onClick={() => deleteNotification(notification.id)}
-                          style={{ color: "rgb(107, 169, 169)" }}
+                        <Box
+                          style={{
+                            backgroundColor: "rgb(244, 246, 248)",
+                            display: "flex",
+                            flexDirection: "row",
+                            padding: "10px",
+                            borderRadius: "14px",
+                          }}
                         >
-                          <TiDelete style={{fontSize:"1.5rem"}}/>
-                        </Button>
+                          <div>
+                            <p>{notification.message}</p>
+                            <p className="text-xs text-gray-500">
+                              {dayjs(notification.time).fromNow()}
+                            </p>
+                          </div>
+                          <Button
+                            size="small"
+                            onClick={() => deleteNotification(notification.id)}
+                            style={{ color: "rgb(107, 169, 169)" }}
+                          >
+                            <TiDelete style={{ fontSize: "1.5rem" }} />
+                          </Button>
+                        </Box>
                       </div>
                     ))
                   ) : (
@@ -612,13 +768,20 @@ export const NavbarNew = () => {
                     </p>
                   )}
                 </Box>
-              </div>
+              </Box>
             )}
             {roll === "student" && (
-              <div className="relative">
+              <div className="relative" style={{display:"flex",gap:"5px"}}>
+                <Typography variant="body2" sx={{fontWeight:"600",display:{
+                  xs:"none",sm:"block",lg:"block",md:"block"
+                }}}>
+                 {name?.personal_information?.first_name?.slice(0, 1)?.toUpperCase()}
+                 {name?.personal_information?.first_name?.slice(1)}{" "} 
+                 </Typography>
                 <CgProfile
-                  size={24}
-                  className="cursor-pointer z-20"
+                  size={26}
+                  style={{position:"relative",top:"-3px"}}
+                  className="cursor-pointer z-20 "
                   onClick={(e) => {
                     navigate("/profile");
                   }}

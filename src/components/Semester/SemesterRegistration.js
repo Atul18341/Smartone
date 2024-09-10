@@ -11,14 +11,10 @@ import {
   FormControl,
   InputLabel,
   FormHelperText,
-  Paper,
+  
   Card,
   CardContent,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
+  
   InputAdornment,
   CircularProgress,
 } from "@mui/material";
@@ -33,12 +29,11 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Footer from "../Home/Footer";
-import { Table } from "heroicons-react";
 import { enqueueSnackbar } from "notistack";
 import { MdDateRange } from "react-icons/md";
-import { FaCodeBranch } from "react-icons/fa";
 import { GiSpellBook } from "react-icons/gi";
 import { BaseUrl } from "../BaseUrl";
+import { BannerSection } from "../BannerSection";
 
 const schema = yup.object().shape({
   selectedSemester: yup.string().required("Semester is required"),
@@ -47,21 +42,20 @@ const schema = yup.object().shape({
 
 export function SemesterRegistration() {
   const navigate = useNavigate();
-  const [student, setStudent] = useState({});
+  const [load, setLoad] = useState(false);
   const [branches, setBranches] = useState([]);
   const [branches1, setBranches1] = useState([]);
   const [branches2, setBranches2] = useState([]);
   const [selectedSemester, setSelectedSemester] = useState("");
   const [userProfile, setUserProfile] = useState([]);
-  const [subjects, setSubjects] = useState([]);
+ 
   const [totalData, setTotalData] = useState([]);
   const [uniqueCodes, setUniqueCodes] = useState([]);
   const [uniqueSubjects, setUniqueSubjects] = useState([]);
   const [result, setResult] = useState([]);
-  const [loading,setLoading]=useState(true);
-  const [loading1,setLoading1]=useState(true);
-  const [loading2,setLoading2]=useState(true);
- 
+  const [loading, setLoading] = useState(true);
+  const [loading1, setLoading1] = useState(true);
+  const [loading2, setLoading2] = useState(true);
 
   const [responsive, setResponsive] = useState(
     window.innerWidth < 669 ? true : false
@@ -83,7 +77,6 @@ export function SemesterRegistration() {
     handleSubmit,
     control,
     setValue,
-    register,
     trigger,
     formState: { errors },
   } = useForm({
@@ -91,54 +84,74 @@ export function SemesterRegistration() {
   });
 
   useEffect(() => {
-    let config = {
-      method: "GET",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/profile/`,
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
-      },
-    };
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
+    if (token && token1) {
+      let config = {
+        method: "GET",
+        maxBodyLength: Infinity,
+        url: `${BaseUrl}/${
+          jwtDecode(sessionStorage.getItem("accesstoken")).college
+        }/profile/`,
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
+        },
+      };
 
-    axios
-      .request(config)
-      .then((response) => {
-        setLoading(false);
-        setUserProfile(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+      axios
+        .request(config)
+        .then((response) => {
+          setLoading(false);
+          setUserProfile(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   useEffect(() => {
-    console.log(userProfile?.personal_information?.registration_number);
-    let config = {
-      method: "get",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/semester-registrations/?search=${userProfile?.personal_information?.registration_number}`,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
-      },
-    };
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
+    if (token && token1) {
+      let config = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${BaseUrl}/${
+          jwtDecode(sessionStorage.getItem("accesstoken")).college
+        }/semester-registrations/?search=${
+          userProfile?.personal_information?.registration_number
+        }`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
+        },
+      };
 
-    axios
-      .request(config)
-      .then((response) => {
-        console.log(response.data);
-        setLoading1(false);
-        setResult(response.data.reverse());
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, [userProfile]);
+      axios
+        .request(config)
+        .then((response) => {
+          console.log(response.data);
+          setLoading1(false);
+          setResult(response.data.reverse());
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (sessionStorage?.getItem("accesstoken")) {
       const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
-      if (response.exp < Math.floor(Date.now() / 1000) || response.role !== "student" ) {
+      if (
+        response.exp < Math.floor(Date.now() / 1000) ||
+        response.role !== "student"
+      ) {
         navigate("/login");
       }
     } else {
@@ -147,67 +160,83 @@ export function SemesterRegistration() {
   }, []);
 
   useEffect(() => {
-    let config = {
-      method: "get",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/semester/?search`,
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
-      },
-    };
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
+    if (token && token1) {
+      let config = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${BaseUrl}/${
+          jwtDecode(sessionStorage.getItem("accesstoken")).college
+        }/semester/?search`,
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
+        },
+      };
 
-    axios
-      .request(config)
-      .then((response) => {
-        setLoading2(false);
-        setTotalData(response.data);
-        const uniqueBranches = response.data.reduce((acc, current) => {
-          const x = acc.find(
-            (item) => item.semester_name === current.semester_name
-          );
-          if (!x) {
-            return acc.concat([current]);
-          } else {
-            return acc;
-          }
-        }, []);
-        setBranches(uniqueBranches);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+      axios
+        .request(config)
+        .then((response) => {
+          setLoading2(false);
+          setTotalData(response.data);
+          const uniqueBranches = response.data.reduce((acc, current) => {
+            const x = acc.find(
+              (item) => item.semester_name === current.semester_name
+            );
+            if (!x) {
+              return acc.concat([current]);
+            } else {
+              return acc;
+            }
+          }, []);
+          setBranches(uniqueBranches);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const fetchBranches = (semester) => {
-    let config = {
-      method: "get",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/semester/?search=${semester}`,
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
-      },
-    };
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
+    if (token && token1) {
+      let config = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${BaseUrl}/${
+          jwtDecode(sessionStorage.getItem("accesstoken")).college
+        }/semester/?search=${semester}`,
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
+        },
+      };
 
-    axios
-      .request(config)
-      .then((response) => {
-        const uniqueBranches = response.data.reduce((acc, current) => {
-          const x = acc.find(
-            (item) =>
-              item.semester_name === current.semester_name &&
-              item.branch === current.branch
-          );
-          if (!x) {
-            return acc.concat([current]);
-          } else {
-            return acc;
-          }
-        }, []);
-        setBranches1(uniqueBranches);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      axios
+        .request(config)
+        .then((response) => {
+          const uniqueBranches = response.data.reduce((acc, current) => {
+            const x = acc.find(
+              (item) =>
+                item.semester_name === current.semester_name &&
+                item.branch === current.branch
+            );
+            if (!x) {
+              return acc.concat([current]);
+            } else {
+              return acc;
+            }
+          }, []);
+          setBranches1(uniqueBranches);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      navigate("/login");
+    }
   };
 
   const handleSemesterChange = (event) => {
@@ -251,86 +280,141 @@ export function SemesterRegistration() {
   }, [selectedSemester, branches2]);
 
   const onSubmit = (data) => {
-    console.log(data);
+    setLoad(true);
 
-    if(userProfile?.personal_information?.first_name===null)
-      return enqueueSnackbar("name field is empty", { variant: "error" });
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
+    if (token && token1) {
+      console.log("data");
 
-    if(!userProfile?.academic_information?.session)
-      return enqueueSnackbar("Session field is empty", { variant: "error" });
+      if (userProfile?.personal_information?.first_name === null){
+        return enqueueSnackbar("name field is empty", { variant: "error" });
 
-    
-    let config = {
-      method: "get",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/semester/?search`,
-      headers: {
-        Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
-      },
-    };
+      }
+      if (!userProfile?.academic_information?.session){
+        return enqueueSnackbar("Session field is empty", { variant: "error" });
 
-    axios
-      .request(config)
-      .then((response) => {
-        console.log(response.data);
-        const b = response.data.find((item) => {
-          return item?.subjects?.length!==0 &&  item?.semester_name ===  data?.selectedSemester && item?.branch === data?.branch;
-      })?.id;
+      }
+      let config = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${BaseUrl}/${
+          jwtDecode(sessionStorage.getItem("accesstoken")).college
+        }/semester/?search`,
+        headers: {
+          Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
+        },
+      };
 
-        let data1 = JSON.stringify({
-          semester: b,
-          student: `${jwtDecode(sessionStorage?.getItem("accesstoken")).user_id}`,
-        });
+      axios
+        .request(config)
+        .then((response) => {
+          console.log(response.data);
+          const b = response.data.find((item) => {
+            return (
+              item?.subjects?.length !== 0 &&
+              item?.semester_name === data?.selectedSemester &&
+              item?.branch === data?.branch
+            );
+          })?.id;
 
-        let config = {
-          method: "post",
-          maxBodyLength: Infinity,
-          url: `${BaseUrl}/semester-registrations/`,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
-          },
-          data: data1,
-        };
+          let data1 = JSON.stringify({
+            semester: b,
+            status: "pending",
+          });
 
-        axios
-          .request(config)
-          .then((response) => {
-            console.log(response.data);
+          console.log(data1);
 
-            enqueueSnackbar("Request sent successfully", {
-              variant: "success",
+          let config = {
+            method: "post",
+            maxBodyLength: Infinity,
+            url: `${BaseUrl}/${
+              jwtDecode(sessionStorage.getItem("accesstoken")).college
+            }/semester-registrations/`,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
+            },
+            data: data1,
+          };
+
+          axios
+            .request(config)
+            .then((response) => {
+              console.log(response.data);
+              setLoad(false);
+              setResult([
+                ...result,
+                {
+                  status: "pending",
+                  semester: {
+                    semester_name: response.data?.semester?.semester_name,
+                  },
+                  applied_date: response.data?.applied_date,
+                },
+              ]);
+              enqueueSnackbar("Request sent successfully", {
+                variant: "success",
+                anchorOrigin: {
+                  vertical: "bottom",
+                  horizontal: "center",
+                },
+                autoHideDuration: 1000,
+              });
+            })
+            .catch((error) => {
+              console.log(error);
+              setLoad(false);
+              if (
+                error?.response?.data?.errors?.detail ===
+                "Given token not valid for any token type"
+              ) {
+                enqueueSnackbar("Logging out", {
+                  variant: "error",
+                  anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "center",
+                  },
+                  autoHideDuration: 3000,
+                });
+                navigate("/login");
+              }
+
+              if (error?.response?.data?.errors?.non_field_errors?.[0]) {
+                enqueueSnackbar(
+                  error?.response?.data?.errors?.non_field_errors?.[0],
+                  {
+                    variant: "error",
+                    anchorOrigin: {
+                      vertical: "bottom",
+                      horizontal: "center",
+                    },
+                    autoHideDuration: 3000,
+                  }
+                );
+              }
+            });
+        })
+        .catch((error) => {
+          console.log(error);
+          if (
+            error?.response?.data?.errors?.detail ===
+            "Given token not valid for any token type"
+          ) {
+            enqueueSnackbar("Logging out", {
+              variant: "error",
               anchorOrigin: {
                 vertical: "bottom",
                 horizontal: "center",
               },
-              autoHideDuration: 1000,
+              autoHideDuration: 3000,
             });
-    
-            setTimeout(() => {
-              window.location.reload();
-            }, 3000);
-
-          })
-          .catch((error) => {
-            console.log(error);
-            
-          });
-      })
-      .catch((error) => {
-        console.log(error);
-        if(error?.response?.data?.errors?.detail==="Given token not valid for any token type"){
-          enqueueSnackbar("Logging out", {
-            variant: "error",
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "center",
-            },
-            autoHideDuration: 3000,
-          });  
-          navigate("/login");
-        }
-      });
+            navigate("/login");
+          }
+        });
+    } else {
+      navigate("/login");
+    }
   };
 
   if (loading || loading1 || loading2) {
@@ -349,31 +433,72 @@ export function SemesterRegistration() {
   return (
     <>
       <NavbarNew />
+
+      <BannerSection image={"../images/banner1.jpg"} title={"Semester Registration"} 
+      subtitle={"Streamline student semester registration by prioritizing their course selections and schedules. Customize registration options to ensure efficient processing and optimal academic planning."}/>
+
+      <p
+        style={{
+          fontSize: "2.0rem",
+          fontWeight: "500",
+          textAlign: "center",
+          marginTop: "20px",
+        }}
+      >
+        Semester Registration
+      </p>
+      <center>
+        <Divider
+          sx={{
+            backgroundColor: "blue",
+            width: { lg: "7%", xs: "30%", md: "10%" },
+            fontWeight: "800",
+            textAlign: "center",
+            marginTop: "5px",
+          }}
+        />
+      </center>
+
+      <Grid
+        container
+        spacing={1}
+        style={{
+          padding: "30px",
+          display: "flex",
+          justifyContent: "center",
+          alignContent: "center",
+          alignItems: "center",
+        }}
+      >
        
-          <p  style={{ width: "100%",fontSize:"1.3rem",marginTop:"30px",textAlign:"center" }}>
-            Semester Registration
-          </p>
-       
-       
-          
-        <center>
-        <img src="./images/semester.png" alt="" style={{width:"310px",borderRadius:"10px",marginTop:"25px"}}/></center>
-        
-      <Grid container spacing={1} style={{ padding: "30px",display:"flex",justifyContent:"center",alignContent:"center",alignItems:"center" }}>
-        <Grid item xs={12} sm={12} lg={7} md={7} style={{display:"flex",flexDirection:"column",justifyContent:'center',alignContent:"center",alignItems:"center"}}>
+        <Grid
+          item
+          xs={12}
+          sm={12}
+          lg={7}
+          md={7}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignContent: "center",
+            alignItems: "center",
+          }}
+        >
           <TextField
-          
             type="text"
+             margin="normal"
+            variant="standard"
             placeholder="Student Name"
             value={`${userProfile?.personal_information?.first_name} ${userProfile?.personal_information?.middle_name} ${userProfile?.personal_information?.last_name}`}
             fullWidth
             disabled
             sx={{
               width: { lg: "70%", md: "70%", xs: "100%", sm: "90%" },
-              marginTop:"15px",marginBottom:"10px",
-              backgroundColor:"whitesmoke"
+              marginTop: "15px",
+              marginBottom: "10px",
+              
             }}
-           
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -382,17 +507,18 @@ export function SemesterRegistration() {
               ),
             }}
           />
-      
-       
+
           <TextField
             type="text"
+             margin="normal"
+            variant="standard"
             value={userProfile?.personal_information?.registration_number}
             fullWidth
             disabled
             sx={{
               width: { lg: "70%", md: "70%", xs: "100%", sm: "90%" },
-              marginBottom:"10px",
-              backgroundColor:"whitesmoke"
+              marginBottom: "10px",
+              
             }}
             InputProps={{
               startAdornment: (
@@ -402,21 +528,45 @@ export function SemesterRegistration() {
               ),
             }}
           />
-       
-        
-          <FormControl fullWidth  sx={{
-                      width: { lg: "70%", md: "70%", xs: "100%", sm: "90%" },
-                      marginBottom:"10px"
-                    }} >
+
+<TextField
+            type="text"
+            variant="standard"
+            margin="normal"
+            value={userProfile?.academic_information?.session}
+            placeholder="session"
+            sx={{
+              width: { lg: "70%", md: "70%", xs: "100%", sm: "90%" },
+              
+            }}
+            fullWidth
+            disabled
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <MdDateRange />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <FormControl
+            fullWidth
+            margin="normal"
+             variant="standard"
+            sx={{
+              width: { lg: "70%", md: "70%", xs: "100%", sm: "90%" },
+              marginBottom: "10px",
+            }}
+          >
             <InputLabel id="semester-label">Choose Semester</InputLabel>
             <Controller
               name="selectedSemester"
               control={control}
               defaultValue=""
-            
               render={({ field }) => (
                 <Select
-                style={{backgroundColor:"whitesmoke"}}
+               
                   {...field}
                   labelId="semester-label"
                   label="Choose Semester"
@@ -425,7 +575,6 @@ export function SemesterRegistration() {
                     field.onChange(e);
                     handleSemesterChange(e);
                   }}
-                 
                 >
                   <MenuItem value="" disabled>
                     Choose Semester
@@ -441,25 +590,27 @@ export function SemesterRegistration() {
 
             <FormHelperText>{errors.selectedSemester?.message}</FormHelperText>
           </FormControl>
-        
-        
-          <FormControl fullWidth  sx={{
-                      width: { lg: "70%", md: "70%", xs: "100%", sm: "90%" },
-                      marginBottom:"10px"
-                    }}>
+
+          <FormControl
+            fullWidth
+            margin="normal"
+            variant="standard"
+            sx={{
+              width: { lg: "70%", md: "70%", xs: "100%", sm: "90%" },
+              marginBottom: "10px",
+            }}
+          >
             <InputLabel id="branch-label">Branch</InputLabel>
             <Controller
-           
               name="branch"
               control={control}
               defaultValue=""
               render={({ field }) => (
                 <Select
-                style={{backgroundColor:"whitesmoke"}}
+                
                   {...field}
                   labelId="branch-label"
                   label="Branch"
-                  
                   onChange={(e) => {
                     field.onChange(e);
                     handleBranchChange(e);
@@ -479,102 +630,153 @@ export function SemesterRegistration() {
             />
             <FormHelperText>{errors.branch?.message}</FormHelperText>
           </FormControl>
-        
-          <TextField
-            type="text"
-            value={userProfile?.academic_information?.session}
-            placeholder='session'
-            sx={{
-              width: { lg: "70%", md: "70%", xs: "100%", sm: "90%" },
-              backgroundColor:"whitesmoke"
-            }}
-            fullWidth
-            disabled
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <MdDateRange />
-                </InputAdornment>
-              ),
-            }}
-          />
+
+         
         </Grid>
-       
-        <Grid item lg={5} md={5} sx={{ padding: "20px" , display:{
-        lg:"block",
-        md:"block",
-        sm:"none",
-        xs:"none"
-      },marginTop:"20px" }}>
-          <p style={{marginBottom:"20px",fontSize:"1.2rem",textAlign:"center"}}>
+
+        <Grid
+          item
+          lg={5}
+          md={5}
+          sx={{
+            padding: "20px",
+            display: {
+              lg: "block",
+              md: "block",
+              sm: "none",
+              xs: "none",
+            },
+            marginTop: "20px",
+          }}
+        >
+          <p
+            style={{
+              marginBottom: "20px",
+              fontSize: "1.2rem",
+              textAlign: "center",
+            }}
+          >
             Subject List
           </p>
           <center>
-          <Box style={{ marginTop: "10px", marginBottom: "20px" }}>
-            {uniqueSubjects.length > 0 ? (
-              uniqueSubjects.map((data, index) => (
-                <p key={index} style={{ margin: "10px" }}>
-                 <GiSpellBook style={{fontSize:"1.4rem"}}/> {data.subject_code} : {data.subject_name}
-                </p>
-              ))):(<center><img src="./images/semester_no_data.png" alt="" style={{
-                width:"280px"
-              }}/></center>)}
-          </Box>
-          <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit(onSubmit)}
-          >
-          Send Request
-        </Button>
+            <Box style={{ marginTop: "10px", marginBottom: "20px" }}>
+              {uniqueSubjects.length > 0 ? (
+                uniqueSubjects.map((data, index) => (
+                  <p key={index} style={{ margin: "10px" }}>
+                    <GiSpellBook style={{ fontSize: "1.4rem" }} />{" "}
+                    {data.subject_code} : {data.subject_name}
+                  </p>
+                ))
+              ) : (
+                <center>
+                  <img
+                    src="./images/semester_no_data.png"
+                    alt=""
+                    style={{
+                      width: "280px",
+                    }}
+                  />
+                </center>
+              )}
+            </Box>
+            <Button
+              variant="contained"
+              sx={{backgroundColor:"rgb(107, 169, 169)", borderRadius:"20px",
+                "&:hover": { backgroundColor: "rgb(85, 136, 136)" },
+                transition: 'background-color 0.3s ease-in-out',
+              }}
+              onClick={handleSubmit(onSubmit)}
+            >
+              {!load && <p >Send Request</p>}
+              {load && (
+                <CircularProgress
+                  style={{ color: "white", width: "20px", height: "22px" }}
+                />
+              )}
+            </Button>
           </center>
         </Grid>
-     
       </Grid>
-      
-     
-       {/* for phone */}
-      <Grid container spacing={2} sx={{ padding: "20px" , display:{
-        lg:"none",
-        md:"none",
-        sm:"flex",
-        xs:"flex"
-      }, justifyContent:"center",alignContent:"center",alignItems:"center" }}>
+
+      {/* for phone */}
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          padding: "20px",
+          display: {
+            lg: "none",
+            md: "none",
+            sm: "flex",
+            xs: "flex",
+          },
+          justifyContent: "center",
+          alignContent: "center",
+          alignItems: "center",
+        }}
+      >
         <Grid item xs={12}>
-          <Typography variant="h5" align="center" gutterBottom sx={{marginBottom:"50px"}}>
+          <Typography
+            variant="h5"
+            align="center"
+            gutterBottom
+            sx={{ marginBottom: "50px" }}
+          >
             Subject List
           </Typography>
           <center>
-          <Box style={{ marginTop: "20px", marginBottom: "20px" }}>
-            {uniqueSubjects.length > 0 ? (
-              uniqueSubjects.map((data, index) => (
-                <p key={index} style={{ margin: "10px" }}>
-                 <GiSpellBook style={{fontSize:"1.4rem"}}/> {data.subject_code} : {data.subject_name}
-                </p>
-              ))):(<center><img src="./images/semester_no_data.png" alt="" style={{
-                width:"280px"
-              }}/></center>)}
-          </Box>
-          <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit(onSubmit)}
-          >
-          Send Request
-        </Button>
+            <Box style={{ marginTop: "20px", marginBottom: "20px" }}>
+              {uniqueSubjects.length > 0 ? (
+                uniqueSubjects.map((data, index) => (
+                  <p key={index} style={{ margin: "10px" }}>
+                    <GiSpellBook style={{ fontSize: "1.4rem" }} />{" "}
+                    {data.subject_code} : {data.subject_name}
+                  </p>
+                ))
+              ) : (
+                <center>
+                  <img
+                    src="./images/semester_no_data.png"
+                    alt=""
+                    style={{
+                      width: "280px",
+                    }}
+                  />
+                </center>
+              )}
+            </Box>
+            <Button
+              variant="contained"
+              sx={{backgroundColor:"rgb(107, 169, 169)"}}
+              onClick={handleSubmit(onSubmit)}
+            >
+              {!load && <p >Send Request</p>}
+              {load && (
+                <CircularProgress
+                  style={{ color: "white", width: "20px", height: "22px" }}
+                />
+              )}
+            </Button>
           </center>
         </Grid>
       </Grid>
 
-
-    
-
       <Grid container spacing={3} style={{ padding: "20px" }}>
-        <Grid item xs={12} style={{marginTop:"40px"}}>
-         <center> 
-          <p style={{ width: "100%",fontSize:"1.2rem" }}>
-            Previous Records
-          </p></center>
+        <Grid item xs={12} style={{ marginTop: "40px" }}>
+          <center>
+            <p style={{ width: "100%", fontSize: "1.4rem",fontWeight:"500" }}>
+              Previous Records
+            </p>
+            <Divider
+              sx={{
+                backgroundColor: "blue",
+                width: { lg: "7%", xs: "30%", md: "10%" },
+                fontWeight: "600",
+                textAlign: "center",
+                marginTop: "9px",
+              }}
+            />
+          </center>
         </Grid>
         <Box
           style={{
@@ -588,37 +790,60 @@ export function SemesterRegistration() {
           }}
         >
           {result?.length === 0 && (
+            
+              <center>
+                <p
+                  style={{
+                    padding: "1vw 0 4vw 0",
+                    fontSize: "1.0rem",
+                    marginTop: "40px",
+                    marginLeft:"30px"
+                  }}
+                >
+                  No data Found.
+                </p>
+              </center>
            
-        <center>
-        <img src="./images/No_data.png" alt="" style={{width:"300px",borderRadius:"10px",marginTop:"30px"}}/></center>
           )}
 
-          { result.length > 0 &&
+          {result.length > 0 &&
             result.map((data, index) => (
               <Box key={index}>
                 <Card
-                variant="outlined"
+                  variant="outlined"
                   sx={{
-                    minWidth: {lg:775,sm:400,xs:305,md:575},
+                    minWidth: { lg: 775, sm: 400, xs: 305, md: 575 },
                     marginBottom: 2,
-                    color:"whitesmoke",
+                    color: "whitesmoke",
                     height: 150,
-                    padding:2
+                    padding: 2,
                   }}
                 >
                   <CardContent>
-                    <Typography variant="p" color="text.secondary" component="div" sx={{fontSize:"1.0rem",marginBottom:"2px"}}>
+                    <Typography
+                      variant="p"
+                      color="text.secondary"
+                      component="div"
+                      sx={{ fontSize: "1.0rem", marginBottom: "2px" }}
+                    >
                       Semester Name: {data?.semester?.semester_name}
                     </Typography>
 
-                    <Typography variant="body1" color="text.secondary"  sx={{fontSize:"1.0rem"}}>
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{ fontSize: "1.0rem" }}
+                    >
                       Applied Date: {data?.applied_date}
                     </Typography>
 
-                    <Typography variant="body1" color="text.secondary"  sx={{fontSize:"1.0rem",marginBottom:"2px"}}>
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{ fontSize: "1.0rem", marginBottom: "2px" }}
+                    >
                       Status: {data?.status}
                     </Typography>
-                   
                   </CardContent>
                 </Card>
               </Box>

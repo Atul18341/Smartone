@@ -11,7 +11,7 @@ import { HiOutlineExclamationCircle } from "react-icons/hi2";
 import NavbarNew from './NavbarNew';
 import Footer from './Home/Footer';
 import { RiLockPasswordFill } from "react-icons/ri";
-import { BaseUrl } from './BaseUrl';
+import { Url } from './BaseUrl';
 
 const validationSchema = yup.object({
   newPassword: yup
@@ -51,7 +51,7 @@ export const ChangePassword = () => {
           let config = {
             method: "post",
             maxBodyLength: Infinity,
-            url: "https://amarnath013.pythonanywhere.com/api/user/token/refresh/",
+            url: `${Url}/token/refresh/`,
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
@@ -115,7 +115,7 @@ export const ChangePassword = () => {
     let config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: `${BaseUrl}/change-password/`,
+      url: `${Url}/change-password/`,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${sessionStorage.getItem('accesstoken')}`
@@ -299,9 +299,11 @@ export const ChangePassword = () => {
               sx={{
                 marginTop: 2,
                 color: '#fff',
+                borderRadius:"20px",
                 backgroundColor: "rgb(107, 169, 169)",
                 "&:hover": { backgroundColor: "rgb(85, 136, 136)" },
                 transition: 'background-color 0.3s ease-in-out',
+                
               }}
             >
               Change Password

@@ -2,13 +2,16 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { BaseUrl } from "../components/BaseUrl";
+import { BaseUrl, Url } from "../components/BaseUrl";
 import { enqueueSnackbar } from "notistack";
+import { Box, CircularProgress } from "@mui/material";
 
 export const BonafideCertificate = () => {
   const [result, setResult] = useState([]);
   const [profile, setProfile] = useState([]);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [college,setCollege]=useState();
 
 
 
@@ -27,7 +30,7 @@ export const BonafideCertificate = () => {
           let config = {
             method: "post",
             maxBodyLength: Infinity,
-            url: "https://amarnath013.pythonanywhere.com/api/user/token/refresh/",
+            url: `${Url}/token/refresh/`,
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
@@ -67,139 +70,94 @@ export const BonafideCertificate = () => {
     }
    
   };
-  useEffect(()=>{
-    let data1 = JSON.stringify({
-      college: 1,
-      student: jwtDecode(sessionStorage?.getItem("accesstoken")).user_id,
-      roll_no: jwtDecode(sessionStorage?.getItem("accesstoken")).user_id,
-      required_for: sessionStorage?.getItem("required_for"),
-      status: "approved",
-      supporting_documents: sessionStorage?.getItem("file"),
-      fee_structure: 'false',
-    });
-
-    let config = {
-      method: "post",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/bonafide/`,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
-      },
-      data: data1,
-    };
-
-    axios
-      .request(config)
-      .then((response) => {
-        // console.log(response.data);
-        const token = sessionStorage.getItem("accesstoken");
-        const token1 = sessionStorage.getItem("refreshtoken");
-       
-        if (token && token1) {
-          let currentDate = new Date();
-          const decodedToken = jwtDecode(token);
-
-          if (
-            decodedToken.exp * 1000 - currentDate.getTime() <
-            59 * 60 * 1000
-          ) {
-            try {
-              regenerateToken(); // Wait for the token regeneration to complete
-            } catch (error) {
-              console.error(
-                "Error in request interceptor while regenerating token:",
-                error
-              );
-            }
-          }
-        }else{
-          navigate('/login');
-        }      
-        setResult(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        if(error?.response?.data?.errors?.detail==="Given token not valid for any token type"){
-          enqueueSnackbar("Logging out", {
-            variant: "error",
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "center",
-            },
-            autoHideDuration: 3000,
-          });  
-          navigate("/login");
-        }
-      });
-  },[]);
-    
-  
 
   useEffect(() => {
-    if (sessionStorage?.getItem("accesstoken")) {
-      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
-      console.log(response.exp);
-      if (response.exp < Math.floor(Date.now() / 1000)|| response.role!=="student" ) {
-        navigate("/login");
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
+  
+    if (token && token1) {
+      let currentDate = new Date();
+      const decodedToken = jwtDecode(token);
+  
+      if (decodedToken.exp * 1000 - currentDate.getTime() < 59 * 60 * 1000) {
+        try {
+          regenerateToken(); // Wait for the token regeneration to complete
+        } catch (error) {
+          console.error(
+            "Error in request interceptor while regenerating token:",
+            error
+          );
+        }
       }
+  
+      const response = jwtDecode(token);
+  
+      axios
+        .get(
+          `${BaseUrl}/${response.college}/bonafide/?search=${jwtDecode(
+            sessionStorage.getItem("accesstoken")
+          ).registration_number}`,
+          {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
+            },
+          }
+        )
+        .then((response) => {
+          setLoading(false);
+          if (response?.data?.[0]?.status === "pending") {
+            enqueueSnackbar("Bonafide Certificate is not verified yet.", {
+              variant: "warning",
+              anchorOrigin: {
+                vertical: "bottom",
+                horizontal: "center",
+              },
+              autoHideDuration: 1000,
+            });
+            navigate("/dashboard");
+          }
+          setResult(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+  
+          if (
+            error?.response?.data?.errors?.detail ===
+            "Given token not valid for any token type"
+          ) {
+            enqueueSnackbar("Logging out", {
+              variant: "error",
+              anchorOrigin: {
+                vertical: "bottom",
+                horizontal: "center",
+              },
+              autoHideDuration: 3000,
+            });
+            navigate("/login");
+          }
+        });
+      setCollege(response.college);
     } else {
       navigate("/login");
     }
-
-    let config = {
-      method: "get",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/profile/`,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
-      },
-    };
-
-    axios
-      .request(config)
-      .then((response) => {
-        const token = sessionStorage.getItem("accesstoken");
-        const token1 = sessionStorage.getItem("refreshtoken");
-       
-        if (token && token1) {
-          let currentDate = new Date();
-          const decodedToken = jwtDecode(token);
-
-          if (
-            decodedToken.exp * 1000 - currentDate.getTime() <
-            59 * 60 * 1000
-          ) {
-            try {
-              regenerateToken(); // Wait for the token regeneration to complete
-            } catch (error) {
-              console.error(
-                "Error in request interceptor while regenerating token:",
-                error
-              );
-            }
-          }
-        }else{
-          navigate('/login');
-        }      
-        setProfile(response?.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        if(error?.response?.data?.errors?.detail==="Given token not valid for any token type"){
-          enqueueSnackbar("Logging out", {
-            variant: "error",
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "center",
-            },
-            autoHideDuration: 3000,
-          });  
-          navigate("/login");
-        }
-      });
   }, []);
+  
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="80vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+  
+    
+
 
   return (
     <>
@@ -211,23 +169,23 @@ export const BonafideCertificate = () => {
           <div className="text-center pb-4">
             <div className="flex flex-col items-center space-y-4">
               <img
-                src="https://imgs.search.brave.com/nlEnn1zTIbZ2U6Nip9RwamR_i6LXgcdLZbNJO_-Qxnk/rs:fit:500:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvZW4vMy8zNy9N/b3RpaGFyaV9Db2xs/ZWdlX29mX0VuZ2lu/ZWVyaW5nX2xvZ28u/anBn"
+                src={`https://smart-backend-uebh.onrender.com${result?.[0]?.college_details?.college_logo}`}
                 alt="College Logo"
-                className="w-24 h-24 print:w-32 print:h-32 object-cover rounded-lg"
+                className="w-24 h-24 print:w-32 print:h-32 object-cover rounded-2xl"
               />
               <div className="text-center">
                 <h2 className="text-2xl font-bold print:text-3xl">
                   DEPARTMENT OF SCIENCE & TECHNOLOGY
                 </h2>
                 <h3 className="text-xl font-medium print:text-2xl">
-                  MOTIHARI COLLEGE OF ENGINEERING, MOTIHARI
+                 {result?.[0]?.college_details?.college_name}, {result?.[0]?.college_details?.college_address}
                 </h3>
                 <p className="text-gray-500 print:text-lg">
-                  BAIRIYA, FURSATPUR, MOTIHARI, EAST CHAMPARAN, BIHAR – 845401
+                {result?.[0]?.college_details?.college_address}
                   <br />
-                  PH. NO. 06252-290699/290695
+                  PH. NO. {result?.[0]?.college_details?.phone_number}
                   <br />
-                  E-MAIL ID- <span>mecmotihari4@gmail.com</span>
+                  E-MAIL ID- <span>{result?.[0]?.college_details?.college_email}</span>
                 </p>
               </div>
             </div>
@@ -243,24 +201,24 @@ export const BonafideCertificate = () => {
           <p className="text-justify leading-loose print:text-lg">
             This is to certify that{" "}
             <b>
-              {profile?.personal_information?.first_name?.slice(0, 1)?.toUpperCase()}
-              {profile?.personal_information?.first_name?.slice(1)}{" "}
-              {profile?.personal_information?.last_name?.slice(0, 1)?.toUpperCase()}
-              {profile?.personal_information?.last_name?.slice(1)}
+              {result?.[0]?.student_details?.personal_information?.first_name?.slice(0, 1)?.toUpperCase()}
+              {result?.[0]?.student_details?.personal_information?.first_name?.slice(1)}{" "}
+              {result?.[0]?.student_details?.personal_information?.last_name?.slice(0, 1)?.toUpperCase()}
+              {result?.[0]?.student_details?.personal_information?.last_name?.slice(1)}
             </b>{" "}
             S/o or D/o{" "}
             <b>
               {" "}
-              {profile?.personal_information?.father_name?.slice(0, 1)?.toUpperCase()}
-              {profile?.personal_information?.father_name?.slice(1)}
+              {result?.[0]?.student_details?.personal_information?.father_name?.slice(0, 1)?.toUpperCase()}
+              {result?.[0]?.student_details?.personal_information?.father_name?.slice(1)}
             </b>{" "}
             bearing College Roll No.-{" "}
-            <b> {profile?.personal_information?.registration_number}</b> is a bonafide student
-            of<b> {profile?.academic_information?.current_year} </b>Semester/Year. (Batch{" "}
+            <b> {result?.[0]?.student_details?.personal_information?.registration_number}</b> is a bonafide student
+            of<b> {result?.[0]?.student_details?.academic_information?.year} </b>Semester/Year. (Batch{" "}
             <b>{profile?.academic_information?.session}</b>)
-            <b> {profile?.academic_information?.branch?.toUpperCase()} Department</b>, under B.Tech
+            <b> {result?.[0]?.student_details?.academic_information?.branch?.toUpperCase()} Department</b>, under B.Tech
             Programme of this Institute. Class starts from{" "}
-            <b>{profile?.academic_information?.date_of_admission}</b> After completing the usual
+            <b>{result?.[0]?.student_details?.academic_information?.date_of_admission}</b> After completing the usual
             academic procedure, he/she has been enrolled under the 04 years
             B.Tech programme of the Institute.
           </p>
@@ -268,9 +226,9 @@ export const BonafideCertificate = () => {
             <p className="text-right print:text-center">
               Principal/OSD
               <br />
-              Motihari College of Engineering,
+              {result?.[0]?.college_details?.college_name}
               <br />
-              Motihari.
+              {result?.[0]?.college_details?.college_address}
             </p>
           </div>
         </div>

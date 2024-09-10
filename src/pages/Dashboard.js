@@ -21,7 +21,7 @@ export const Dashboard = () => {
 
   // function regenerateToken() {
   //   let data = JSON.stringify({
-  //     refresh: localStorage.getItem("refreshtoken"),
+  //     refresh: sessionStorage.getItem("refreshtoken"),
   //   });
 
   //   let config = {
@@ -38,7 +38,7 @@ export const Dashboard = () => {
   //     .request(config)
   //     .then((response) => {
   //       console.log(JSON.stringify(response.data));
-  //       localStorage.setItem("accesstoken", response.data.refresh);
+  //       sessionStorage.setItem("accesstoken", response.data.refresh);
   //     })
   //     .catch((error) => {
   //       console.log(error);
@@ -48,12 +48,12 @@ export const Dashboard = () => {
   
   useEffect(() => {
   
-    console.log(localStorage.getItem("accesstoken"))
-    // if(localStorage?.getItem("accesstoken")===null){
+    console.log(sessionStorage.getItem("accesstoken"))
+    // if(sessionStorage?.getItem("accesstoken")===null){
     //   navigate("/login");
     // }
-    // else if (localStorage?.getItem("accesstoken")) {
-    //   const response = jwtDecode(localStorage?.getItem("accesstoken"));
+    // else if (sessionStorage?.getItem("accesstoken")) {
+    //   const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
     //   if (response.exp < Math.floor(Date.now() / 1000)) {
     //     navigate("/login");
     //   }

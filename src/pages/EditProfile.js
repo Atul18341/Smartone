@@ -6,6 +6,8 @@ import {
   FormControl,
   FormControlLabel,
   Grid,
+  InputLabel,
+  MenuItem,
   Radio,
   RadioGroup,
   TextField,
@@ -23,17 +25,34 @@ import { enqueueSnackbar } from "notistack";
 import emailValidator from "email-validator";
 import NavbarNew from "../components/NavbarNew";
 import { FaCameraRetro } from "react-icons/fa";
-import { BaseUrl } from "../components/BaseUrl";
+import { BaseUrl, Url } from "../components/BaseUrl";
+import { ClimbingBoxLoader } from "react-spinners";
+import { format } from "date-fns";
 
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 const phoneNumberRegex = /^\d{10}$/;
+const today = format(new Date(), "yyyy-MM-dd");
 
 const schema = yup.object().shape({
   first_name: yup.string().required("First name is required"),
   last_name: yup.string().required("Last name is required"),
   father_name: yup.string().required("Father name is required"),
   middle_name: yup.string(),
-  gender: yup.string(),
+  gender: yup
+    .string()
+    .test(
+      "Invalid_gender",
+      "Gender Must be between Male,Female,Others",
+      (value) => {
+        if (
+          ["Male", "male", "Female", "female", "Others", "others"].includes(
+            value
+          ) === false
+        )
+          return false;
+        else return true;
+      }
+    ),
   student_email: yup
     .string()
     .email("Invalid email format")
@@ -53,7 +72,45 @@ const schema = yup.object().shape({
     .matches(
       dateRegex,
       "Date has wrong format. Use one of these formats instead: YYYY-MM-DD."
-    ),
+    )
+    .test("invalid_date", "Invalid DOB", (value) => {
+      if (!value) return false;
+
+      const today = new Date();
+      const [year, month, day] = value.split("-").map(Number);
+
+      if (month > 12) return false;
+      if (day > 31) return false;
+      if (day === parseInt("00")) return false;
+      if (month === parseInt("00")) return false;
+      // Create a Date object from the given DOB
+
+      if ([4, 6, 9, 11].includes(month) && day > 30) return false;
+
+      // February (leap year check)
+      if (month === 2) {
+        const isLeapYear =
+          (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+        if (day > 29 || (day === 29 && !isLeapYear)) return false;
+      }
+
+      const dob = new Date(year, month - 1, day); // month is 0-based in JS Date
+
+      // Calculate the difference in years
+      const age = today.getFullYear() - dob.getFullYear();
+
+      // Adjust if the DOB hasn't reached the current date in the current year
+      const isBeforeBirthdayThisYear =
+        today.getMonth() < dob.getMonth() ||
+        (today.getMonth() === dob.getMonth() &&
+          today.getDate() < dob.getDate());
+
+      // Subtract one year if the user's birthday hasn't occurred yet this year
+      const actualAge = isBeforeBirthdayThisYear ? age - 1 : age;
+
+      // The person should be at least 15 years old
+      return actualAge >= 15;
+    }),
   permanent_address: yup.string(),
   isCorrespndance_same: yup.string(),
   correspndance_address: yup.string(),
@@ -71,7 +128,7 @@ const schema = yup.object().shape({
       "is-valid-last_qualification",
       "Values must be between Matric, Intermediate, Polytechnic",
       (value) =>
-        !value || ["Matric", "Intermediate", "Polytechnic"].includes(value)
+        !value || ["matric", "intermediate", "polytechnic"].includes(value)
     ),
 
   registration_year: yup
@@ -79,13 +136,18 @@ const schema = yup.object().shape({
     .integer("Registration year must be an integer")
     .min(1000, "Registration year must be a of 4 digit")
     .max(9999, "Registration year must be a of 4 digit")
+    .test(
+      "invalid_registration_year",
+      "Registration Year should be equal or less than current year",
+      (value) => {
+        return value <= new Date().getFullYear();
+      }
+    )
     .required("Registration year is required"),
 
   year: yup
     .number()
     .integer("Registration year must be an integer")
-    .min(1000, "year must be a of 4 digit")
-    .max(9999, "year must be a of 4 digit")
     .required("year is required"),
 
   school: yup.string(),
@@ -98,7 +160,17 @@ const schema = yup.object().shape({
     ),
   branch: yup.string().required("Branch is required"),
   merit_serial_number: yup.string(),
-  category: yup.string().required("category is required"),
+  category: yup
+    .string()
+    .test(
+      "is-valid-board",
+      "Values must be between General, OBC, SC, ST",
+      (value) =>
+        !value ||
+        ["General", "OBC", "SC", "ST", "general", "obc", "sc", "st"].includes(
+          value
+        )
+    ),
   college_name: yup.string().required("College Name is required"),
   date_of_admission: yup
     .string()
@@ -106,8 +178,46 @@ const schema = yup.object().shape({
       dateRegex,
       "Date has wrong format. Use one of these formats instead: YYYY-MM-DD."
     )
+    .test("invalid_DOA", "Invalid Date of admission", (value) => {
+      const [year, month, day] = value.split("-").map(Number);
+
+      if (year > parseInt(new Date().getFullYear())) return false;
+
+      if (month > 12) return false;
+      if (day > 31) return false;
+      if (day === parseInt("00")) return false;
+      if (month === parseInt("00")) return false;
+
+      return true;
+    })
     .required("Date Of Admission is required"),
-  session: yup.string(),
+  session: yup
+    .string()
+    .test(
+      "invalid_session_value",
+      "Must be a valid session (e.g., 2020-2024)",
+      (value) => {
+        // Ensure the value exists
+        if (!value) return false;
+
+        // Split the string by hyphen
+        const years = value.split("-");
+
+        // Check if the array has exactly two elements
+        if (years.length !== 2) return false;
+
+        // Check if both parts are exactly four digits long
+
+        const startYear = years[0];
+        const endYear = years[1];
+        const isValidStartYear = /^\d{4}$/.test(years[0]);
+        const isValidEndYear = /^\d{4}$/.test(years[1]);
+
+        if (endYear <= startYear) return false;
+
+        return isValidStartYear && isValidEndYear;
+      }
+    ),
   university_reg_no: yup.string(),
   TC_or_CL_no: yup
     .string()
@@ -154,25 +264,31 @@ export const EditProfile = () => {
     if (sessionStorage?.getItem("accesstoken")) {
       const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       const response1 = jwtDecode(sessionStorage?.getItem("refreshtoken"));
-      if (response.exp < Math.floor(Date.now() / 1000) || response1.exp < Math.floor(Date.now() / 1000)) {
+      if (
+        response.exp < Math.floor(Date.now() / 1000) ||
+        response1.exp < Math.floor(Date.now() / 1000)
+      ) {
         navigate("/login");
-      }else{
-        if (sessionStorage.getItem("refreshtoken") && sessionStorage.getItem("accesstoken")) {
+      } else {
+        if (
+          sessionStorage.getItem("refreshtoken") &&
+          sessionStorage.getItem("accesstoken")
+        ) {
           let data = {
             refresh: sessionStorage?.getItem("refreshtoken"),
           };
-    
+
           let config = {
             method: "post",
             maxBodyLength: Infinity,
-            url: "https://amarnath013.pythonanywhere.com/api/user/token/refresh/",
+            url: `${Url}/token/refresh/`,
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
             },
             data: data,
           };
-    
+
           axios
             .request(config)
             .then((response) => {
@@ -180,10 +296,13 @@ export const EditProfile = () => {
               sessionStorage.setItem("accesstoken", response.data.access);
             })
             .catch((error) => {
-              if(error?.message==='Request failed with status code 500'){
-                navigate('/login');
+              if (error?.message === "Request failed with status code 500") {
+                navigate("/login");
               }
-              if(error?.response?.data?.errors?.detail==="Given token not valid for any token type"){
+              if (
+                error?.response?.data?.errors?.detail ===
+                "Given token not valid for any token type"
+              ) {
                 enqueueSnackbar("Logging out", {
                   variant: "error",
                   anchorOrigin: {
@@ -191,7 +310,7 @@ export const EditProfile = () => {
                     horizontal: "center",
                   },
                   autoHideDuration: 3000,
-                });  
+                });
                 navigate("/login");
               }
               console.log(error);
@@ -203,11 +322,13 @@ export const EditProfile = () => {
     } else {
       navigate("/login");
     }
-   
   };
 
   useEffect(() => {
-    if (sessionStorage?.getItem("accesstoken") && sessionStorage?.getItem("refreshtoken")) {
+    if (
+      sessionStorage?.getItem("accesstoken") &&
+      sessionStorage?.getItem("refreshtoken")
+    ) {
       const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (
         response.token_type !== "access" &&
@@ -246,169 +367,232 @@ export const EditProfile = () => {
   const [userProfile, setUserProfile] = useState([]);
   const [file, setFile] = useState("");
   const [imgPreview, setImgPreview] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const branches = [
+    { name: "Computer Science and Engineering", abbreviation: "CSE" },
+    { name: "Mechanical Engineering", abbreviation: "ME" },
+    { name: "Electrical Engineering", abbreviation: "EE" },
+    { name: "Civil Engineering", abbreviation: "CE" },
+    { name: "Electronics and Communication Engineering", abbreviation: "ECE" },
+    { name: "Chemical Engineering", abbreviation: "CHE" },
+    { name: "Information Technology", abbreviation: "IT" },
+    { name: "Biomedical Engineering", abbreviation: "BME" },
+    { name: "Aeronautical Engineering", abbreviation: "AE" },
+    { name: "Automobile Engineering", abbreviation: "AU" },
+    { name: "Biotechnology Engineering", abbreviation: "BT" },
+    { name: "Industrial Engineering", abbreviation: "IE" },
+    { name: "Environmental Engineering", abbreviation: "EN" },
+    { name: "Petroleum Engineering", abbreviation: "PE" },
+    { name: "Instrumentation Engineering", abbreviation: "IE" },
+    { name: "Agricultural Engineering", abbreviation: "AG" },
+    { name: "Mining Engineering", abbreviation: "MN" },
+    { name: "Marine Engineering", abbreviation: "MRE" },
+    { name: "Textile Engineering", abbreviation: "TE" },
+    { name: "Food Technology", abbreviation: "FT" },
+    { name: "Production Engineering", abbreviation: "PR" },
+    { name: "Metallurgical Engineering", abbreviation: "MT" },
+    { name: "Polymer Engineering", abbreviation: "PM" },
+    { name: "Naval Architecture", abbreviation: "NA" },
+    { name: "Power Engineering", abbreviation: "PW" },
+    { name: "Robotics Engineering", abbreviation: "RE" },
+    { name: "Software Engineering", abbreviation: "SE" },
+    { name: "Geological Engineering", abbreviation: "GE" },
+    { name: "Structural Engineering", abbreviation: "ST" },
+    { name: "Mechatronics Engineering", abbreviation: "MTX" },
+    { name: "Aerospace Engineering", abbreviation: "ASP" },
+    { name: "Marine Technology", abbreviation: "MRT" },
+    { name: "Nano Engineering", abbreviation: "NE" },
+    { name: "Materials Science and Engineering", abbreviation: "MSE" },
+    { name: "Telecommunication Engineering", abbreviation: "TCE" },
+    { name: "Nuclear Engineering", abbreviation: "NE" },
+    { name: "Optical Engineering", abbreviation: "OE" },
+    { name: "Automotive Engineering", abbreviation: "AUE" },
+    { name: "Systems Engineering", abbreviation: "SYE" },
+    { name: "Renewable Energy Engineering", abbreviation: "REE" },
+    { name: "Biochemical Engineering", abbreviation: "BCE" },
+    { name: "Mining and Mineral Engineering", abbreviation: "MME" },
+    { name: "Safety Engineering", abbreviation: "SE" },
+    { name: "Corrosion Engineering", abbreviation: "CE" },
+    { name: "Plastics Engineering", abbreviation: "PLE" },
+    { name: "Petrochemical Engineering", abbreviation: "PCE" },
+    { name: "Energy Engineering", abbreviation: "EE" },
+    { name: "Computer Science and Business Systems", abbreviation: "CSBS" },
+  ];
 
   useEffect(() => {
-    let config = {
-      method: "GET",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/profile/`,
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
-      },
-    };
+    const token = sessionStorage?.getItem("accesstoken");
+    const token1 = sessionStorage?.getItem("refreshtoken");
 
-    axios
-      .request(config)
-      .then((response) => {
-        console.log(response.data);
-        const token = sessionStorage.getItem("accesstoken");
-        if (token) {
-          let currentDate = new Date();
-          const decodedToken = jwtDecode(token);
+    if (token && token1) {
+      const response = jwtDecode(token);
+      console.log(response.college);
+      const profileConfig = {
+        method: "GET",
+        maxBodyLength: Infinity,
+        url: `${Url}/${response?.college}/profile/`,
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
+        },
+      };
 
-          if (decodedToken.exp * 1000 - currentDate.getTime() < 59 * 60 * 1000) {
-            try {
-              regenerateToken(); // Wait for the token regeneration to complete
-            } catch (error) {
-              
-              console.error(
-                "Error in request interceptor while regenerating token:",
-                error
-              );
+      axios
+        .request(profileConfig)
+        .then((response) => {
+          const token = sessionStorage.getItem("accesstoken");
+          if (token) {
+            let currentDate = new Date();
+            const decodedToken = jwtDecode(token);
+
+            if (
+              decodedToken.exp * 1000 - currentDate.getTime() <
+              59 * 60 * 1000
+            ) {
+              regenerateToken().catch((error) => {
+                console.error(
+                  "Error in request interceptor while regenerating token:",
+                  error
+                );
+                navigate("/login");
+              });
             }
+          } else {
+            navigate("/login");
           }
-        }else{
-          navigate('/login');
-        }
-        setUserProfile(response?.data);
-        setIsCorrespndanceSame(
-          response?.data?.personal_information?.isCorrespndance_same
-        );
-        setValue(
-          "first_name",
-          response.data.personal_information?.first_name || ""
-        );
-        setValue(
-          "last_name",
-          response.data.personal_information?.last_name || ""
-        );
-        setValue(
-          "father_name",
-          response.data.personal_information?.father_name || ""
-        );
-        setValue(
-          "middle_name",
-          response.data.personal_information?.middle_name || ""
-        );
-        setValue(
-          "date_of_birth",
-          response.data.personal_information?.date_of_birth || ""
-        );
-        setValue("gender", response.data.personal_information?.gender || "");
-        setValue("email", response.data.contact_information?.email || "");
-        setValue(
-          "permanent_address",
-          response.data.personal_information?.permanent_address || ""
-        );
-        setValue(
-          "isCorrespndance_same",
-          response.data.personal_information?.isCorrespndance_same || "false"
-        );
-        setValue(
-          "correspndance_address",
-          response.data.personal_information?.correspndance_address || ""
-        );
-        setValue(
-          "permanent_address",
-          response.data.personal_information?.permanent_address || ""
-        );
-        setValue(
-          "student_email",
-          response.data.contact_information?.student_email || ""
-        );
-        setValue(
-          "student_phone_number",
-          response.data.contact_information?.student_phone_number || ""
-        );
-        setValue(
-          "fathers_mobile_number",
-          response.data.contact_information?.fathers_mobile_number || ""
-        );
-
-        setValue(
-          "registration_year",
-          response.data.academic_information?.registration_year || ""
-        );
-        setValue("year", response.data.academic_information?.year || "");
-        setValue(
-          "last_qualification",
-          response.data.academic_information?.last_qualification || ""
-        );
-        setValue("school", response.data.academic_information?.school || "");
-        setValue("board", response.data.academic_information?.board || "");
-        setValue("branch", response.data.academic_information?.branch || "");
-        setValue(
-          "merit_serial_number",
-          response.data.academic_information?.merit_serial_number || ""
-        );
-        setValue(
-          "category",
-          response.data.academic_information?.category || ""
-        );
-        setValue(
-          "college_name",
-          response.data.academic_information?.college_name || ""
-        );
-        setValue(
-          "date_of_admission",
-          response.data.academic_information?.date_of_admission || ""
-        );
-        setValue("session", response.data.academic_information?.session || "");
-        setValue(
-          "university_reg_no",
-          response.data.academic_information?.university_reg_no || ""
-        );
-        setValue(
-          "TC_or_CL_no",
-          response.data.tc_information?.TC_or_CL_no || ""
-        );
-        setValue(
-          "issuing_date_tc",
-          response.data.tc_information?.issuing_date_tc || ""
-        );
-        setValue("purpose", response.data.tc_information?.purpose || "");
-        setValue(
-          "character_certificate_issued",
-          response.data.tc_information?.character_certificate_issued || ""
-        );
-        setValue(
-          "character_certificate_no",
-          response.data.tc_information?.character_certificate_no || ""
-        );
-        setValue(
-          "issuing_date_cr",
-          response.data.tc_information?.issuing_date_cr || ""
-        );
-      })
-
-      .catch((error) => {
-        console.log(error);
-        if(error?.response?.data?.errors?.detail==="Given token not valid for any token type"){
-          enqueueSnackbar("Logging out", {
-            variant: "error",
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "center",
-            },
-            autoHideDuration: 3000,
-          });  
-          navigate("/login");
-        }
-      });
-  }, [setValue]);
-
-  // console.log(errors);
+          console.log(response);
+          setLoading(false);
+          setUserProfile(response?.data);
+          setIsCorrespndanceSame(
+            response?.data?.personal_information?.isCorrespndance_same
+          );
+          setValue(
+            "first_name",
+            response.data.personal_information?.first_name || ""
+          );
+          setValue(
+            "last_name",
+            response.data.personal_information?.last_name || ""
+          );
+          setValue(
+            "father_name",
+            response.data.personal_information?.father_name || ""
+          );
+          setValue(
+            "middle_name",
+            response.data.personal_information?.middle_name || ""
+          );
+          setValue(
+            "date_of_birth",
+            response.data.personal_information?.date_of_birth || ""
+          );
+          setValue("gender", response.data.personal_information?.gender || "");
+          setValue("email", response.data.contact_information?.email || "");
+          setValue(
+            "permanent_address",
+            response.data.personal_information?.permanent_address || ""
+          );
+          setValue(
+            "isCorrespndance_same",
+            response.data.personal_information?.isCorrespndance_same || "false"
+          );
+          setValue(
+            "correspndance_address",
+            response.data.personal_information?.correspndance_address || ""
+          );
+          setValue(
+            "student_email",
+            response.data.contact_information?.student_email || ""
+          );
+          setValue(
+            "student_phone_number",
+            response.data.contact_information?.student_phone_number || ""
+          );
+          setValue(
+            "fathers_mobile_number",
+            response.data.contact_information?.fathers_mobile_number || ""
+          );
+          setValue(
+            "registration_year",
+            response.data.academic_information?.registration_year || ""
+          );
+          setValue("year", response.data.academic_information?.year || "");
+          setValue(
+            "last_qualification",
+            response.data.academic_information?.last_qualification || ""
+          );
+          setValue("school", response.data.academic_information?.school || "");
+          setValue("board", response.data.academic_information?.board || "");
+          setValue("branch", response.data.academic_information?.branch || "");
+          setValue(
+            "merit_serial_number",
+            response.data.academic_information?.merit_serial_number || ""
+          );
+          setValue(
+            "category",
+            response.data.academic_information?.category || ""
+          );
+          setValue(
+            "college_name",
+            response.data.academic_information?.college_name || ""
+          );
+          setValue(
+            "date_of_admission",
+            response.data.academic_information?.date_of_admission || ""
+          );
+          setValue(
+            "session",
+            response.data.academic_information?.session || ""
+          );
+          setValue(
+            "university_reg_no",
+            response.data.academic_information?.university_reg_no || ""
+          );
+          setValue(
+            "TC_or_CL_no",
+            response.data.tc_information?.TC_or_CL_no || ""
+          );
+          setValue(
+            "issuing_date_tc",
+            response.data.tc_information?.issuing_date_tc || ""
+          );
+          setValue("purpose", response.data.tc_information?.purpose || "");
+          setValue(
+            "character_certificate_issued",
+            response.data.tc_information?.character_certificate_issued || ""
+          );
+          setValue(
+            "character_certificate_no",
+            response.data.tc_information?.character_certificate_no || ""
+          );
+          setValue(
+            "issuing_date_cr",
+            response.data.tc_information?.issuing_date_cr || ""
+          );
+        })
+        .catch((error) => {
+          console.log(error);
+          if (
+            error?.response?.data?.errors?.detail ===
+            "Given token not valid for any token type"
+          ) {
+            enqueueSnackbar("Logging out", {
+              variant: "error",
+              anchorOrigin: {
+                vertical: "bottom",
+                horizontal: "center",
+              },
+              autoHideDuration: 3000,
+            });
+            navigate("/login");
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      navigate("/login");
+    }
+  }, []);
 
   const UpdateSubmit = (data) => {
     console.log(file);
@@ -498,7 +682,9 @@ export const EditProfile = () => {
     let config = {
       method: "put",
       maxBodyLength: Infinity,
-      url: `${BaseUrl}/profile/`,
+      url: `${BaseUrl}/${
+        jwtDecode(sessionStorage.getItem("accesstoken")).college
+      }/profile/`,
       headers: {
         "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
@@ -507,64 +693,64 @@ export const EditProfile = () => {
     };
     const token = sessionStorage.getItem("accesstoken");
     const token1 = sessionStorage.getItem("refreshtoken");
-    if(token && token1){
-    axios
-      .request(config)
-      .then((response) => {
-        console.log(response.data);
-        const token = sessionStorage.getItem("accesstoken");
-        const token1 = sessionStorage.getItem("refreshtoken");
-        if (token && token1) {
-          let currentDate = new Date();
-          const decodedToken = jwtDecode(token);
+    if (token && token1) {
+      axios
+        .request(config)
+        .then((response) => {
+          console.log(response.data);
+          const token = sessionStorage.getItem("accesstoken");
+          const token1 = sessionStorage.getItem("refreshtoken");
+          if (token && token1) {
+            let currentDate = new Date();
+            const decodedToken = jwtDecode(token);
 
-          if (
-            decodedToken.exp * 1000 - currentDate.getTime() <
-            59 * 60 * 1000
-          ) {
-            try {
-              regenerateToken(); // Wait for the token regeneration to complete
-            } catch (error) {
-              console.error(
-                "Error in request interceptor while regenerating token:",
-                error
-              );
+            if (
+              decodedToken.exp * 1000 - currentDate.getTime() <
+              59 * 60 * 1000
+            ) {
+              try {
+                regenerateToken(); // Wait for the token regeneration to complete
+              } catch (error) {
+                console.error(
+                  "Error in request interceptor while regenerating token:",
+                  error
+                );
+              }
             }
+          } else {
+            navigate("/login");
           }
-        }else{
-          navigate('/login');
-        }
-        enqueueSnackbar(response.data.message, {
-          variant: "success",
-          anchorOrigin: {
-            vertical: "bottom",
-            horizontal: "center",
-          },
-          autoHideDuration: 3000,
-        });
-        setLoading(false);
-        navigate("/profile");
-      })
-      .catch((error) => {
-        setLoading(false);
-        if (
-          error?.response?.data?.errors?.detail ===
-          "Given token not valid for any token type"
-        ) {
-          enqueueSnackbar("Logging out", {
-            variant: "error",
+          enqueueSnackbar(response.data.message, {
+            variant: "success",
             anchorOrigin: {
               vertical: "bottom",
               horizontal: "center",
             },
             autoHideDuration: 3000,
           });
-          navigate("/login");
-        }
-        console.log(error);
-      });
-    }else{
-      navigate('/login');
+          setLoading(false);
+          navigate("/profile");
+        })
+        .catch((error) => {
+          setLoading(false);
+          if (
+            error?.response?.data?.errors?.detail ===
+            "Given token not valid for any token type"
+          ) {
+            enqueueSnackbar("Logging out", {
+              variant: "error",
+              anchorOrigin: {
+                vertical: "bottom",
+                horizontal: "center",
+              },
+              autoHideDuration: 3000,
+            });
+            navigate("/login");
+          }
+          console.log(error);
+        });
+    } else {
+      navigate("/login");
     }
   };
 
@@ -573,6 +759,20 @@ export const EditProfile = () => {
     let url = URL.createObjectURL(e.target.files[0]);
     setImgPreview(url);
   };
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="80vh"
+      >
+        <ClimbingBoxLoader />
+      </Box>
+    );
+  }
+
   return (
     <Box className="logout-container">
       <div className="circle circle1"></div>
@@ -780,12 +980,17 @@ export const EditProfile = () => {
                         </Grid>
                         <Grid item lg={4} sm={12} xs={12} md={12}>
                           <TextField
-                            type="text"
+                            type="date"
                             fullWidth
                             sx={{ marginTop: "10px" }}
                             {...register("date_of_birth")}
                             error={!!errors.date_of_birth}
                             helperText={errors.date_of_birth?.message}
+                            InputProps={{
+                              inputProps: {
+                                max: today, // Set the maximum selectable date to today
+                              },
+                            }}
                           />
                         </Grid>
 
@@ -802,14 +1007,21 @@ export const EditProfile = () => {
                         </Grid>
                         <Grid item lg={4} sm={12} xs={12} md={12}>
                           <TextField
-                            type="text"
+                            select
                             fullWidth
+                            label="Select gender"
                             sx={{ marginTop: "10px" }}
                             {...register("gender")}
+                            value={watch("gender")}
                             error={!!errors.gender}
                             helperText={errors.gender?.message}
-                          />
+                          >
+                            <MenuItem value="Male">Male</MenuItem>
+                            <MenuItem value="Female">Female</MenuItem>
+                            <MenuItem value="Others">Others</MenuItem>
+                          </TextField>
                         </Grid>
+
                         <Divider style={{ width: "100%", margin: "10px 0" }} />
                         <Grid
                           item
@@ -827,6 +1039,7 @@ export const EditProfile = () => {
                             fullWidth
                             sx={{ marginTop: "10px" }}
                             {...register("permanent_address")}
+                            
                             error={!!errors.permanent_address}
                             helperText={errors.permanent_address?.message}
                           />
@@ -983,9 +1196,7 @@ export const EditProfile = () => {
                           md={12}
                           style={{ marginBottom: "5px" }}
                         >
-                          <Typography variant="p">
-                            Registration_number
-                          </Typography>
+                          <Typography variant="p">Registration No.</Typography>
                         </Grid>
                         <Grid item lg={4} sm={12} xs={12} md={12}>
                           <Typography variant="p">
@@ -1031,13 +1242,20 @@ export const EditProfile = () => {
                         </Grid>
                         <Grid item lg={4} sm={12} xs={12} md={12}>
                           <TextField
-                            type="text"
+                            select
                             fullWidth
-                            style={{ marginTop: "10px" }}
+                            label="Select Year"
+                            sx={{ marginTop: "10px" }}
                             {...register("year")}
+                            value={watch("year")} // Watch for changes and set the initial value
                             error={!!errors.year}
                             helperText={errors.year?.message}
-                          />
+                          >
+                            <MenuItem value="1">1</MenuItem>
+                            <MenuItem value="2">2</MenuItem>
+                            <MenuItem value="3">3</MenuItem>
+                            <MenuItem value="4">4</MenuItem>
+                          </TextField>
                         </Grid>
 
                         <Divider style={{ width: "100%", margin: "10px 0" }} />
@@ -1055,13 +1273,21 @@ export const EditProfile = () => {
                         </Grid>
                         <Grid item lg={4} sm={12} xs={12} md={12}>
                           <TextField
-                            type="text"
+                            select
                             fullWidth
-                            style={{ marginTop: "10px" }}
+                            label="Select Last Qualification"
+                            sx={{ marginTop: "10px" }}
                             {...register("last_qualification")}
+                            value={watch("last_qualification")} // Watch for changes and set the initial value
                             error={!!errors.last_qualification}
                             helperText={errors.last_qualification?.message}
-                          />
+                          >
+                            <MenuItem value="matric">Matric</MenuItem>
+                            <MenuItem value="intermediate">
+                              Intermediate
+                            </MenuItem>
+                            <MenuItem value="polytechnic">Polytechnic</MenuItem>
+                          </TextField>
                         </Grid>
 
                         <Divider style={{ width: "100%", margin: "10px 0" }} />
@@ -1099,13 +1325,20 @@ export const EditProfile = () => {
                         </Grid>
                         <Grid item lg={4} sm={12} xs={12} md={12}>
                           <TextField
-                            type="text"
+                            select
                             fullWidth
-                            style={{ marginTop: "10px" }}
+                            label="Select Board"
+                            sx={{ marginTop: "10px" }}
                             {...register("board")}
+                            value={watch("board")} // Watch for changes and set the initial value
                             error={!!errors.board}
                             helperText={errors.board?.message}
-                          />
+                          >
+                            <MenuItem value="CBSE">CBSE</MenuItem>
+                            <MenuItem value="ICSE">ICSE</MenuItem>
+                            <MenuItem value="BSEB">BSEB</MenuItem>
+                            <MenuItem value="Others">Others</MenuItem>
+                          </TextField>
                         </Grid>
 
                         <Divider style={{ width: "100%", margin: "10px 0" }} />
@@ -1121,13 +1354,27 @@ export const EditProfile = () => {
                         </Grid>
                         <Grid item lg={4} sm={12} xs={12} md={12}>
                           <TextField
-                            type="text"
+                            select
                             fullWidth
-                            style={{ marginTop: "10px" }}
+                            label="Select Branch"
+                            sx={{ marginTop: "10px" }}
                             {...register("branch")}
+                            value={watch("branch")} // Watch for changes and set the initial value
                             error={!!errors.branch}
                             helperText={errors.branch?.message}
-                          />
+                            FormHelperTextProps={{
+                              sx: { color: "red" }, // Set the color of the helper text to red
+                            }}
+                          >
+                            {branches.map((branch) => (
+                              <MenuItem
+                                key={branch.abbreviation}
+                                value={branch.abbreviation}
+                              >
+                                {branch.name} ({branch.abbreviation})
+                              </MenuItem>
+                            ))}
+                          </TextField>
                         </Grid>
 
                         <Divider style={{ width: "100%", margin: "10px 0" }} />
@@ -1167,14 +1414,22 @@ export const EditProfile = () => {
                         </Grid>
                         <Grid item lg={4} sm={12} xs={12} md={12}>
                           <TextField
-                            type="string"
+                            select
                             fullWidth
-                            style={{ marginTop: "10px" }}
+                            label="Select Category"
+                            sx={{ marginTop: "10px" }}
                             {...register("category")}
+                            value={watch("category")} // Watch for changes and set the initial value
                             error={!!errors.category}
                             helperText={errors.category?.message}
-                          />
+                          >
+                            <MenuItem value="General">General</MenuItem>
+                            <MenuItem value="SC">SC</MenuItem>
+                            <MenuItem value="ST">ST</MenuItem>
+                            <MenuItem value="OBC">OBC</MenuItem>
+                          </TextField>
                         </Grid>
+
                         <Divider style={{ width: "100%", margin: "10px 0" }} />
                         <Grid
                           item
@@ -1194,6 +1449,7 @@ export const EditProfile = () => {
                             {...register("college_name")}
                             error={!!errors.college_name}
                             helperText={errors.college_name?.message}
+                            disabled
                           />
                         </Grid>
 
@@ -1208,14 +1464,20 @@ export const EditProfile = () => {
                         >
                           <Typography variant="p">Date Of Admission</Typography>
                         </Grid>
+
                         <Grid item lg={4} sm={12} xs={12} md={12}>
                           <TextField
-                            type="text"
+                            type="date"
                             fullWidth
-                            style={{ marginTop: "10px" }}
+                            sx={{ marginTop: "10px" }}
                             {...register("date_of_admission")}
                             error={!!errors.date_of_admission}
                             helperText={errors.date_of_admission?.message}
+                            InputProps={{
+                              inputProps: {
+                                max: today, // Set the maximum selectable date to today
+                              },
+                            }}
                           />
                         </Grid>
 
@@ -1417,11 +1679,21 @@ export const EditProfile = () => {
                       style={{ marginBottom: "40px" }}
                       sx={{
                         width: { lg: "30%", md: "70%", xs: "100%", sm: "90%" },
+                        borderRadius: "20px",
+                        backgroundColor: "rgb(107 169 169)",
+                        "&:hover": { backgroundColor: "rgb(85, 136, 136)" },
+                        transition: "background-color 0.3s ease-in-out",
                       }}
                     >
                       {!loading && <p>Update</p>}
                       {loading && (
-                        <CircularProgress style={{ color: "white",width:"20px",height:"22px" }} />
+                        <CircularProgress
+                          style={{
+                            color: "white",
+                            width: "20px",
+                            height: "22px",
+                          }}
+                        />
                       )}
                     </Button>
                   </center>

@@ -3,21 +3,40 @@ import "./VerifySemesterRegistration.css";
 import axios from "axios";
 import { Box, CircularProgress } from "@mui/material";
 import { BaseUrl } from "../BaseUrl";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const ApprovedList = () => {
+
+  const navigate=useNavigate();
   const [print, setPrint] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchMessage, setSearchMessage] = useState("");
   const [loading1,setLoading1]=useState(true);
 
+  useEffect(()=>{
+    if (sessionStorage?.getItem("accesstoken") && sessionStorage?.getItem("refreshtoken") ) {
+      const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
+      if (
+        response.exp < Math.floor(Date.now() / 1000) ||
+        response.role !== "hod"
+      ) {
+        navigate("/login");
+      }
+    } else {
+      navigate("/login");
+    }
+  },[navigate]);
+
   useEffect(() => {
+    
     const fetchData = async () => {
       try {
         const config = {
           method: "get",
           maxBodyLength: Infinity,
-          url: `${BaseUrl}/verify-semester-registration/?status=approved`,
+          url: `${BaseUrl}/${jwtDecode(sessionStorage.getItem("accesstoken")).college}/verify-semester-registration/?status=approved`,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
@@ -107,7 +126,7 @@ const ApprovedList = () => {
         <div>
           {searchMessage && <p>{searchMessage}</p>}
           {uniqueRegistrationNumbers?.length===0 ? (<center>
-            <img src="./images/No_data.png" alt="" style={{width:"310px",borderRadius:"10px",marginTop:"30px"}}/></center>):( uniqueRegistrationNumbers.map((regNumber, index) => {
+           <p style={{fontSize:"1.2rem",fontWeight:"500",padding:"2.5vw",marginTop:"50px",marginBottom:"30px"}}>No Data Found.</p></center>):( uniqueRegistrationNumbers.map((regNumber, index) => {
             // Find the first occurrence of this registration number in searchResults
             const student = searchResults.find(data =>
               data?.registration_details_info?.student_details?.personal_information?.registration_number === regNumber);
@@ -115,7 +134,7 @@ const ApprovedList = () => {
            
 
             return (
-              <div key={index} className="id-card">
+              <div key={index} className="id-card" style={{marginBottom:"50px"}}>
                 <div className="info">
                   <p>
                     <span className="label">Name:</span>{" "}

@@ -41,10 +41,10 @@ export const Logout = () => {
           <Typography variant="h6" component="h6" style={{ margin: "10px 0px 20px 0px" }}>
             Are you sure you want to logout?
           </Typography>
-          <Button fullWidth variant="contained" sx={{ backgroundColor: "rgb(107 169 169)", color: "white", }} onClick={() => navigate('/dashboard')}>
+          <Button fullWidth variant="contained" sx={{ backgroundColor: "rgb(107 169 169)", color: "white", borderRadius:"20px", }} onClick={() => navigate('/dashboard')}>
               No
             </Button>
-            <Button fullWidth variant="contained" sx={{ backgroundColor: "rgb(107 169 169)", color: "white",marginTop:"10px" }} onClick={handleLogout}>
+            <Button fullWidth variant="contained" sx={{ backgroundColor: "rgb(107 169 169)", color: "white",marginTop:"10px", borderRadius:"20px", }} onClick={handleLogout}>
               Yes, Log me out
             </Button>
             

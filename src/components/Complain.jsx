@@ -10,7 +10,6 @@ import axios from "axios";
 import {
   Box,
   Button,
-  Container,
   Grid,
   Paper,
   TextField,
@@ -19,7 +18,6 @@ import {
   Select,
   InputLabel,
   FormControl,
-  Divider,
   Table,
   TableBody,
   TableCell,
@@ -33,32 +31,24 @@ import {
   TableHead,
   useTheme,
   CircularProgress,
+  Divider,
 } from "@mui/material";
-import Slider from "react-slick";
+
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
-import NavbarNew from "../components/NavbarNew";
-import Footer from "../components/Home/Footer";
-import { enqueueSnackbar } from "notistack";
-import { BaseUrl } from "./BaseUrl";
 
-const settings = {
-  infinite: true,
-  speed: 4000,
-  slidesToShow: 1,
-  slidesToScroll: 1,
-  autoplay: true,
-  autoplaySpeed: 5000,
-  arrows: false,
-};
+import { enqueueSnackbar } from "notistack";
+import { BaseUrl, Url } from "./BaseUrl";
+import { formatDate } from "./FormDate";
+
 const complaintSchema = yup.object().shape({
   type: yup.string().required("Complaint type is required"),
-  subject: yup.string().required("Subject is required"),
-  description: yup.string().required("Description is required"),
+  subject: yup.string().max(40).min(20).required("Subject is required"),
+  description: yup.string().max(400).min(25).required("Description is required"),
 });
 
 function TablePaginationActions(props) {
@@ -123,65 +113,51 @@ function TablePaginationActions(props) {
   );
 }
 
-const slides = [
-  {
-    image: "complaints1.png",
-    title: "Revolutionizing Campus Life with Smart Tech",
-    subtitle:
-      "Revolutionizing the campus experience with smart technology and seamless connectivity.",
-  },
-  // {
-  //   image: "complaints.jpg",
-  //   title: "Welcome to Smart Campus",
-  //   subtitle: "Your journey to excellence starts here",
-  // },
-
-  // {
-  //   image: "complaints2.png",
-  //   title: "Revolutionizing Campus Life with Smart Tech",
-  //   subtitle:
-  //     "Revolutionizing the campus experience with smart technology and seamless connectivity.",
-  // },
-];
-
 const ComplaintForm = () => {
   const [profileData, setProfileData] = useState({
     registrationNo: "",
     name: "",
     branch: "",
   });
-  const [complaints, setComplaints] = useState([]);
+
   const [previousRecord, setPreviousRecord] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [responsive, setResponsive] = useState(window.innerWidth < 684);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [loading1, setLoading1] = useState(false);
+  const [key, setKey] = useState(0);
 
-  
   const regenerateToken = () => {
     if (sessionStorage?.getItem("accesstoken")) {
       const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       const response1 = jwtDecode(sessionStorage?.getItem("refreshtoken"));
-      if (response.exp < Math.floor(Date.now() / 1000) || response1.exp < Math.floor(Date.now() / 1000)) {
+      if (
+        response.exp < Math.floor(Date.now() / 1000) ||
+        response1.exp < Math.floor(Date.now() / 1000)
+      ) {
         navigate("/login");
-      }else{
-        if (sessionStorage.getItem("refreshtoken") && sessionStorage.getItem("accesstoken")) {
+      } else {
+        if (
+          sessionStorage.getItem("refreshtoken") &&
+          sessionStorage.getItem("accesstoken")
+        ) {
           let data = {
             refresh: sessionStorage?.getItem("refreshtoken"),
           };
-    
+
           let config = {
             method: "post",
             maxBodyLength: Infinity,
-            url: "https://amarnath013.pythonanywhere.com/api/user/token/refresh/",
+            url: `${Url}/token/refresh/`,
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${sessionStorage?.getItem("accesstoken")}`,
             },
             data: data,
           };
-    
+
           axios
             .request(config)
             .then((response) => {
@@ -189,10 +165,13 @@ const ComplaintForm = () => {
               sessionStorage.setItem("accesstoken", response.data.access);
             })
             .catch((error) => {
-              if(error?.message==='Request failed with status code 500'){
-                navigate('/login');
+              if (error?.message === "Request failed with status code 500") {
+                navigate("/login");
               }
-              if(error?.response?.data?.errors?.detail==="Given token not valid for any token type"){
+              if (
+                error?.response?.data?.errors?.detail ===
+                "Given token not valid for any token type"
+              ) {
                 enqueueSnackbar("Logging out", {
                   variant: "error",
                   anchorOrigin: {
@@ -200,7 +179,7 @@ const ComplaintForm = () => {
                     horizontal: "center",
                   },
                   autoHideDuration: 3000,
-                });  
+                });
                 navigate("/login");
               }
               console.log(error);
@@ -212,7 +191,6 @@ const ComplaintForm = () => {
     } else {
       navigate("/login");
     }
-   
   };
 
   useEffect(() => {
@@ -226,36 +204,43 @@ const ComplaintForm = () => {
   }, []);
 
   useEffect(() => {
-    if (sessionStorage?.getItem("accesstoken")) {
+    if (
+      sessionStorage?.getItem("accesstoken") &&
+      sessionStorage?.getItem("refreshtoken")
+    ) {
       const response = jwtDecode(sessionStorage?.getItem("accesstoken"));
       if (
         response.exp < Math.floor(Date.now() / 1000) ||
-        (response.role !== "student" && response.role !== "admin")
+        (response.role !== "student" && response.role !== "super-admin")
       ) {
         navigate("/login");
       }
     } else {
       navigate("/login");
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const token = sessionStorage.getItem("accesstoken");
     const token1 = sessionStorage.getItem("refreshtoken");
     if (!token && !token1) {
       navigate("/login");
-  
     }
 
     const fetchProfileData = async () => {
       try {
-        const response = await fetch(`${BaseUrl}/profile`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${BaseUrl}/${
+            jwtDecode(sessionStorage?.getItem("accesstoken"))?.college
+          }/profile`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (!response.ok) throw new Error("Failed to fetch profile data");
         const data = await response.json();
         if (data) {
@@ -268,7 +253,10 @@ const ComplaintForm = () => {
         });
       } catch (error) {
         console.error("Error fetching profile data:", error);
-        if(error?.response?.data?.errors?.detail==="Given token not valid for any token type"){
+        if (
+          error?.response?.data?.errors?.detail ===
+          "Given token not valid for any token type"
+        ) {
           enqueueSnackbar("Logging out", {
             variant: "error",
             anchorOrigin: {
@@ -276,49 +264,36 @@ const ComplaintForm = () => {
               horizontal: "center",
             },
             autoHideDuration: 3000,
-          });  
+          });
           navigate("/login");
         }
       }
     };
 
-    const fetchComplaints = async () => {
-      try {
-        const response = await fetch(`${BaseUrl}/complaints`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) throw new Error("Failed to fetch complaints");
-        const data = await response.json();
-        setComplaints(data.reverse());
-      } catch (error) {
-        console.error("Error fetching complaints:", error);
-
-      }
-    };
-
     fetchProfileData();
-    fetchComplaints();
-  }, []);
+  }, [navigate]);
 
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm({
     resolver: yupResolver(complaintSchema),
   });
 
   useEffect(() => {
-    if (sessionStorage.getItem("accesstoken") !== null && sessionStorage.getItem("refreshtoken")!==null) {
+    if (
+      sessionStorage.getItem("accesstoken") !== null &&
+      sessionStorage.getItem("refreshtoken") !== null
+    ) {
       let config = {
         method: "get",
         maxBodyLength: Infinity,
-        url: `${BaseUrl}/complaints/`,
+        url: `${BaseUrl}/${
+          jwtDecode(sessionStorage?.getItem("accesstoken"))?.college
+        }/complaints/`,
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
         },
@@ -330,11 +305,11 @@ const ComplaintForm = () => {
           setPreviousRecord(response.data);
           const token = sessionStorage.getItem("accesstoken");
           const token1 = sessionStorage.getItem("refreshtoken");
-         
+
           if (token && token1) {
             let currentDate = new Date();
             const decodedToken = jwtDecode(token);
-  
+
             if (
               decodedToken.exp * 1000 - currentDate.getTime() <
               59 * 60 * 1000
@@ -348,8 +323,8 @@ const ComplaintForm = () => {
                 );
               }
             }
-          }else{
-            navigate('/login');
+          } else {
+            navigate("/login");
           }
         })
         .catch((error) => {
@@ -372,90 +347,127 @@ const ComplaintForm = () => {
     } else {
       navigate("/login");
     }
-  }, []);
+  }, [navigate]);
 
   const currentDate = new Date();
 
   const onSubmit = (data) => {
-    let data1 = JSON.stringify({
-      name: profileData?.name,
-      branch: profileData?.branch,
-      status: "registered",
-      subject: data.subject,
-      complaint_type: data.type.toLowerCase(),
-      complaint_description: data.description,
-      registered_date: `${currentDate.getFullYear()}-${
-        currentDate.getMonth() + 1
-      }-${currentDate.getDate()}`,
-    });
+    setLoading1(true);
 
-    let config = {
-      method: "post",
-      maxBodyLength: Infinity,
-      url: `${BaseUrl}/complaints/`,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
-      },
-      data: data1,
-    };
+    const token = sessionStorage.getItem("accesstoken");
+    const token1 = sessionStorage.getItem("refreshtoken");
 
-    axios
-      .request(config)
-      .then((response) => {
-        const token = sessionStorage.getItem("accesstoken");
-        const token1 = sessionStorage.getItem("refreshtoken");
-       
-        if (token && token1) {
-          let currentDate = new Date();
-          const decodedToken = jwtDecode(token);
-
-          if (
-            decodedToken.exp * 1000 - currentDate.getTime() <
-            59 * 60 * 1000
-          ) {
-            try {
-              regenerateToken(); // Wait for the token regeneration to complete
-            } catch (error) {
-              console.error(
-                "Error in request interceptor while regenerating token:",
-                error
-              );
-            }
-          }
-        }else{
-          navigate('/login');
-        }
-        toast.success("Complaint registered successfully!", {
-          position: "top-center",
-          autoClose: 5000,
+    if (token && token1) {
+      if (profileData?.name === null && profileData?.branch === null) {
+        return enqueueSnackbar("Update the profile first.", {
+          variant: "warning",
         });
-        reset();
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast.error("Failed to register complaint.", {
-          position: "top-center",
-          autoClose: 5000,
-        });
-        if (
-          error?.response?.data?.errors?.detail ===
-          "Given token not valid for any token type"
-        ) {
-          enqueueSnackbar("Logging out", {
-            variant: "error",
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "center",
-            },
-            autoHideDuration: 3000,
-          });
-          navigate("/login");
-        }
+      }
+      let data1 = JSON.stringify({
+        name: profileData?.name,
+        branch: profileData?.branch,
+        status: "registered",
+        subject: data.subject,
+        complaint_type: data.type.toLowerCase(),
+        complaint_description: data.description,
+        registered_date: `${currentDate.getFullYear()}-${currentDate.getMonth() +
+          1}-${currentDate.getDate()}`,
       });
+
+      let config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: `${BaseUrl}/${
+          jwtDecode(sessionStorage?.getItem("accesstoken"))?.college
+        }/complaints/`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("accesstoken")}`,
+        },
+        data: data1,
+      };
+
+      axios
+        .request(config)
+        .then((response) => {
+          setLoading1(false);
+          setPreviousRecord([
+            ...previousRecord,
+            {
+              complaint_type: data.type.toLowerCase(),
+              subject: data.subject,
+              complaint_description: data.description,
+              registered_date: `${currentDate.getFullYear()}-${currentDate.getMonth() +
+                1}-${currentDate.getDate()}`,
+              status: "registered",
+            },
+          ]);
+
+          const token = sessionStorage.getItem("accesstoken");
+          const token1 = sessionStorage.getItem("refreshtoken");
+
+          if (token && token1) {
+            let currentDate = new Date();
+            const decodedToken = jwtDecode(token);
+
+            if (
+              decodedToken.exp * 1000 - currentDate.getTime() <
+              59 * 60 * 1000
+            ) {
+              try {
+                regenerateToken(); // Wait for the token regeneration to complete
+              } catch (error) {
+                console.error(
+                  "Error in request interceptor while regenerating token:",
+                  error
+                );
+              }
+            }
+          } else {
+            navigate("/login");
+          }
+          toast.success("Complaint registered successfully!", {
+            position: "top-center",
+            autoClose: 5000,
+          });
+          reset({
+            type: "",
+            subject: "",
+            description: "",
+          });
+          setTimeout(() => {
+            setValue("type", "");
+          }, 10);
+          setValue("subject", "");
+          setValue("description", "");
+
+          setKey((prevKey) => prevKey + 1);
+        })
+        .catch((error) => {
+          console.log(error);
+          setLoading1(false);
+          toast.error("Failed to register complaint.", {
+            position: "top-center",
+            autoClose: 5000,
+          });
+          if (
+            error?.response?.data?.errors?.detail ===
+            "Given token not valid for any token type"
+          ) {
+            enqueueSnackbar("Logging out", {
+              variant: "error",
+              anchorOrigin: {
+                vertical: "bottom",
+                horizontal: "center",
+              },
+              autoHideDuration: 3000,
+            });
+            navigate("/login");
+          }
+        });
+    } else {
+      navigate("/login");
+    }
   };
 
   const handleChangePage = (event, newPage) => {
@@ -494,13 +506,24 @@ const ComplaintForm = () => {
           <Grid item xs={12} md={6} lg={6} style={{ marginTop: "15px" }}>
             <p
               style={{
-                marginBottom: "3%",
+                marginBottom: "1%",
                 textAlign: "center",
                 fontSize: "1.3rem",
               }}
             >
               Register Complaint
             </p>
+            <center>
+              <Divider
+                sx={{
+                  backgroundColor: "blue",
+                  width: { lg: "10%", xs: "30%", md: "10%" },
+                  fontWeight: "800",
+                  textAlign: "center",
+                  marginTop: "0px",
+                }}
+              />
+            </center>
 
             <center>
               <Box
@@ -511,9 +534,9 @@ const ComplaintForm = () => {
                 }}
               >
                 <img
-                  src={`./images/complaints2.png`}
+                  src={`./images/addfee.png`}
                   alt=""
-                  style={{ borderRadius: "10px", width: "300px" }}
+                  style={{ borderRadius: "10px", width: "260px",marginTop:"20px" }}
                 />
               </Box>
             </center>
@@ -525,12 +548,12 @@ const ComplaintForm = () => {
                   md: "transparent",
                 },
                 padding: { lg: "5px", md: "0px", xs: "15px", sm: "20px" },
-                marginTop: { lg: "0px", md: "42px", xs: "29px", sm: "19px" },
+                marginTop: { lg: "40px", md: "42px", xs: "29px", sm: "19px" },
                 marginLeft: { lg: "10px", md: "42px", xs: "0px", sm: "0px" },
                 borderRadius: "5px",
               }}
             >
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={handleSubmit(onSubmit)} key={key}>
                 <Grid
                   container
                   spacing={2}
@@ -544,7 +567,7 @@ const ComplaintForm = () => {
                       fullWidth
                       value={profileData?.registrationNo}
                       disabled
-                      variant="outlined"
+                      variant="standard"
                     />
                   </Grid>
 
@@ -554,7 +577,7 @@ const ComplaintForm = () => {
                       fullWidth
                       value={profileData?.name}
                       disabled
-                      variant="outlined"
+                      variant="standard"
                     />
                   </Grid>
 
@@ -564,7 +587,7 @@ const ComplaintForm = () => {
                       fullWidth
                       value={profileData?.branch}
                       disabled
-                      variant="outlined"
+                      variant="standard"
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -574,7 +597,11 @@ const ComplaintForm = () => {
                       render={({ field }) => (
                         <FormControl fullWidth variant="outlined">
                           <InputLabel>Complaint Type</InputLabel>
-                          <Select {...field} label="Complaint Type">
+                          <Select
+                            {...field}
+                            label="Complaint Type"
+                            variant="standard"
+                          >
                             <MenuItem value="Ragging related">
                               Ragging related
                             </MenuItem>
@@ -587,7 +614,11 @@ const ComplaintForm = () => {
                             <MenuItem value="Others">Others</MenuItem>
                           </Select>
                           {errors.type && (
-                            <Typography color="error">
+                            <Typography
+                              color="error"
+                              fontSize="0.8rem"
+                              marginTop="2px"
+                            >
                               {errors.type.message}
                             </Typography>
                           )}
@@ -604,7 +635,7 @@ const ComplaintForm = () => {
                         <TextField
                           {...field}
                           label="Subject"
-                          variant="outlined"
+                          variant="standard"
                           fullWidth
                           error={!!errors.subject}
                           helperText={
@@ -623,7 +654,7 @@ const ComplaintForm = () => {
                         <TextField
                           {...field}
                           label="Description"
-                          variant="outlined"
+                          variant="standard"
                           fullWidth
                           multiline
                           rows={4}
@@ -642,11 +673,23 @@ const ComplaintForm = () => {
                       variant="contained"
                       color="primary"
                       sx={{
-                        width: { lg: "70%", md: "70%", xs: "100%", sm: "90%" },
+                        width: { lg: "50%", md: "50%", xs: "100%", sm: "90%" },
                         backgroundColor: "rgb(107, 169, 169)",
+                        "&:hover": { backgroundColor: "rgb(85, 136, 136)" },
+                        borderRadius:"20px",
+                        marginTop:"20px"
                       }}
                     >
-                      Submit
+                      {!loading1 && <p>Submit</p>}
+                      {loading1 && (
+                        <CircularProgress
+                          style={{
+                            color: "white",
+                            width: "20px",
+                            height: "22px",
+                          }}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Grid>
@@ -658,96 +701,157 @@ const ComplaintForm = () => {
             <Box
               sx={{
                 display: { xs: "none", sm: "none", md: "block", lg: "block" },
-               
-                marginTop: "50px",
+
+                marginTop: "90px",
                 borderRadius: "15px",
               }}
             >
-             <img
-                  src={`./images/complaints1.png`}
-                  alt=""
-                  style={{ borderRadius: "10px", width: "450px" }}
-                />
-             
+              <img
+                src={`./images/addfee.png`}
+                alt=""
+                style={{ borderRadius: "10px", width: "280px" }}
+              />
             </Box>
-            <Box sx={{ marginTop: "50px" }}>
+           
+          </Grid>
+        </Grid>
+        <center>
+        <Box>
+
+        <Box sx={{ marginTop: "50px" }}>
               <Typography
                 variant="p"
                 sx={{
                   marginBottom: "5%",
                   textAlign: "center",
                   marginTop: "10px",
-                  fontSize: "1.2rem",
+                  fontSize: "1.4rem",
                 }}
               >
                 Previous Complaints
               </Typography>
-            </Box>
-            {previousRecord.length === 0 ? (
               <center>
-                <img
-                  src="./images/No_data.png"
-                  alt=""
+       
+        <Divider
+          sx={{
+            backgroundColor: "blue",
+            width: { lg: "12%", xs: "30%", md: "10%" },
+            fontWeight: "800",
+            textAlign: "center",
+            marginTop: "5px",
+          }}
+        />
+      </center>
+            </Box>
+          
+        {previousRecord.length === 0 ? (
+              <center>
+                <p
                   style={{
-                    width: "310px",
-                    borderRadius: "10px",
-                    marginTop: "30px",
+                    padding: "5vw 0 9vw 0",
+                    fontSize: "1.0rem",
+                    marginTop: "20px",
                   }}
-                />
+                >
+                  No Data Found.
+                </p>
               </center>
             ) : responsive ? (
               previousRecord
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => (
                   <Card
-                   variant="outlined"
-                    key={index}
-                    sx={{
-                      marginBottom: 2,
-                      bgcolor: "#f5f5f5",
-                      textAlign: "justify",
-                      marginTop: "20px",
-                      maxWidth:310
-                    }}
-                  >
-                    <CardContent>
-                      <Typography color="textSecondary">
-                        <span style={{ fontSize: "1.0rem" }}>Subject:</span>{" "}
+                  variant="outlined"
+                  key={index}
+                  sx={{
+                    marginBottom: 3,
+                    marginTop: 3,
+                    bgcolor: "#ffffff", // Light background for a cleaner look
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+                    borderRadius: 2, // Rounded corners for a modern look
+                    maxWidth: 350, // Slightly wider for more content space
+                    transition: "transform 0.2s ease-in-out", // Smooth hover effect
+                    "&:hover": {
+                      transform: "scale(1.02)", // Slightly enlarges on hover
+                    },
+                  }}
+                >
+                  <CardContent>
+                    <Box mb={2}>
+                      <Typography
+                        variant="h6"
+                        color="textPrimary"
+                        sx={{ fontWeight: "bold" }}
+                      >
                         {row.complaint_type}
                       </Typography>
-                      <Typography color="textSecondary">
-                        <span style={{ fontSize: "1.0rem" }}>Description:</span>{" "}
-                        {row.complaint_description}
+                      <Box>
+                      <Typography variant="body1" color="textSecondary">
+                         {formatDate(row.registered_date)}
                       </Typography>
-                      <Typography color="textSecondary">
-                        <span style={{ fontSize: "1.0rem" }}>Type:</span>{" "}
-                        {row.complaint_type}
+                    </Box>
+            
+                    </Box>
+
+                   
+                    <Box mb={2}>
+                      <Typography variant="body1" textAlign="start" color="textSecondary">
+                        <b>Description:</b> {row.complaint_description}
                       </Typography>
-                      <Typography color="textSecondary">
-                        {" "}
-                        <span style={{ fontSize: "1.0rem" }}>Status:</span>{" "}
-                        {row.status}
+                    </Box>
+            
+                    <Box mb={2}>
+                      <Typography variant="body1" textAlign="start" color="textSecondary">
+                        <b>Subject:</b> {row.subject}
                       </Typography>
-                      <Typography color="textSecondary">
-                        <span style={{ fontSize: "1.0rem" }}>Date:</span>{" "}
-                        {row.registered_date}
+                      <Typography variant="body1" textAlign="start" color="textSecondary">
+                        <b>Status:</b> {row.status}
                       </Typography>
-                    </CardContent>
-                  </Card>
+                  
+                    </Box>
+            
+                    
+                    
+            
+                   
+                  </CardContent>
+                </Card>
                 ))
             ) : (
-              <TableContainer component={Paper} style={{ marginTop: "20px" }}>
+              <TableContainer
+                component={Paper}
+                sx={{ marginTop: "20px", marginBottom: "50px",border: "none",
+                  "&:last-child td, &:last-child th": { border: 0 },
+                  maxWidth:"80%",
+                  borderRight: 0,
+                  borderBottom: 0, }}
+              >
                 <Table
-                  sx={{ minWidth: 500 }}
+                  sx={{ minWidth: 500,borderRight: 0,
+                    "&:last-child td, &:last-child th": { border: 0 },
+                    border: 0,
+                    borderBottom: 0, }}
                   aria-label="custom pagination table"
                 >
-                  <TableHead style={{ backgroundColor: "#D2E9E9" }}>
+                  <TableHead style={{ backgroundColor: "#545959", }}>
                     <TableRow>
-                      <TableCell>Complaint Type</TableCell>
-                      <TableCell>Subject</TableCell>
-                      <TableCell>Description</TableCell>
-                      <TableCell>Date</TableCell>
-                      <TableCell>Status</TableCell>
+                      <TableCell sx={{
+                              color: "white",
+                            }}>Complaint Type</TableCell>
+                      <TableCell sx={{
+                              color: "white",
+                            }}>Subject</TableCell>
+                      <TableCell sx={{
+                              color: "white",
+                              
+                            }}>Description</TableCell>
+                      <TableCell sx={{
+                              color: "white",
+                              width:"10%"
+                            }}>Date</TableCell>
+                      <TableCell sx={{
+                              color: "white",
+                            }}>Status</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -776,7 +880,7 @@ const ComplaintForm = () => {
                             <TableCell>{row.complaint_type}</TableCell>
                             <TableCell>{row.subject}</TableCell>
                             <TableCell>{row.complaint_description}</TableCell>
-                            <TableCell>{row.registered_date}</TableCell>
+                            <TableCell>{formatDate(row.registered_date)}</TableCell>
                             <TableCell>{row.status}</TableCell>
                           </TableRow>
                         ))
@@ -788,7 +892,7 @@ const ComplaintForm = () => {
                       </TableRow>
                     )}
                   </TableBody>
-                  <TableFooter style={{ backgroundColor: "#D2E9E9" }}>
+                  <TableFooter style={{ backgroundColor: "#545959" }}>
                     <TableRow>
                       <TablePagination
                         rowsPerPageOptions={[
@@ -816,8 +920,8 @@ const ComplaintForm = () => {
                 </Table>
               </TableContainer>
             )}
-          </Grid>
-        </Grid>
+        </Box>
+        </center>
         <ToastContainer />
       </Box>
     </div>

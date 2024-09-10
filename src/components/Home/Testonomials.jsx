@@ -1,100 +1,45 @@
 import React from 'react';
-import { Box, Grid, Typography, Card, CardContent, CardMedia, Container, useTheme, useMediaQuery } from '@mui/material';
-import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import { Box, Grid } from '@mui/material';
 
-const testimonials = [
-  {
-    name: 'John Doe',
-    title: 'CEO, ABC',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis auctor sem sed mi fermentum.',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    name: 'Jane Smith',
-    title: 'CTO, XYZ',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis auctor sem sed mi fermentum.',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    name: 'Alice Johnson',
-    title: 'CFO, DEF',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis auctor sem sed mi fermentum.',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    name: 'Bob Brown',
-    title: 'COO, GHI',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis auctor sem sed mi fermentum.',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    name: 'Charlie White',
-    title: 'CMO, JKL',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis auctor sem sed mi fermentum.',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    name: 'Diana Green',
-    title: 'CIO, MNO',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis auctor sem sed mi fermentum.',
-    image: 'https://via.placeholder.com/150',
-  },
-  // Add more testimonials as needed
-];
-
-const Testimonials = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: isMobile ? 1 : 3,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    nextArrow: <ArrowForwardIos />,
-    prevArrow: <ArrowBackIos />,
-  };
+export const Testimonials = () => {
+  const images = [
+    'https://i.pinimg.com/736x/da/c7/58/dac758d7606690d057a9cbba5f259154.jpg',
+    'https://i.pinimg.com/736x/79/1f/84/791f846ada8f10df721c42328e78e970.jpg',
+    'https://e7.pngegg.com/pngimages/923/238/png-clipart-white-and-multicolored-logo-creative-color-logo-design-text-logo.png',
+    'https://www.clipartmax.com/png/middle/217-2178587_cornerstone-random-business-logos.png',
+    'https://image.similarpng.com/very-thumbnail/2021/05/Logo-design-illustration-on-transparent-background-PNG.png'
+  ];
 
   return (
-    <Box py={8} >
-      <Container>
-        <Typography variant="h4" align="center" gutterBottom>
-          Testimonials
-        </Typography>
-        <Slider {...settings}>
-          {testimonials.map((testimonial, index) => (
-            <Grid key={index} container justifyContent="center">
-              <Card sx={{ maxWidth: 345, m: 2 }}>
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={testimonial.image}
-                  alt={testimonial.name}
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="div">
-                    {testimonial.name}
-                  </Typography>
-                  <Typography variant="subtitle1" color="textSecondary">
-                    {testimonial.title}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {testimonial.description}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Slider>
-      </Container>
+    <Box>
+      <Grid container spacing={2} justifyContent="center" style={{marginTop:"20px",marginBottom:"20px"}}>
+        {images.map((data, index) => (
+          <Grid
+            key={index}
+            item
+            sm={6}
+            xs={6}
+            md={3}
+            lg={2}
+            sx={{
+              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)',
+              },
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: '20px',
+              borderRadius: '8px',
+              
+            }}
+          >
+            <img src={data} alt="" style={{ width: '100%', maxWidth: '100px',objectFit:"cover" }} />
+          </Grid>
+        ))}
+      </Grid>
     </Box>
   );
 };
-
-export default Testimonials;

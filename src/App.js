@@ -33,8 +33,18 @@ import VerifySemesterRegistration from "./components/VerifySemesterRegistration/
 import FacultySemesterRegistration from "./components/VerifySemesterRegistration/FacultySemesterRegistration.js";
 import ShowHostelRoomRequest from "./pages/ShowHostelRoomRequest.js";
 import Contact from "./pages/Contact.js";
-import NoDuesForDegreeApproval from "./pages/NoDuesForDegreeApproval";
+import {NoDuesForDegreeApproval} from "./pages/NoDuesForDegreeApproval";
 import NotFoundPage from "./pages/NotFoundPage.js";
+import { AdminDashboard } from "./pages/AdminDashboard.js";
+import { CaretakerDashboard } from "./pages/CaretakerDashboard.js";
+import { CaretakerNoDues } from "./pages/CaretakerNoDues.js";
+import { RegistrarDashboard } from "./pages/RegistrarDashboard.js";
+import { UserManagement } from "./pages/UserManagement.js";
+import AddSemester from "./pages/AddSemester.js";
+import RoomRegistration from "./pages/RoomRegistration.js";
+import { ThankYou } from "./pages/Thankyou.js";
+import { GenerateDepartments } from "./pages/GenerateDepartments.js";
+
 
 function App() {
   return (
@@ -42,10 +52,12 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Home/>} />
-            <Route path="/register" element={<RegisterUser />} />
+            <Route path="/register/:name" element={<RegisterUser />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/leave" element={<Leave />} />
+            <Route path="/after-contact" element={<ThankYou />} />
+            <Route path="/room-register" element={<RoomRegistration />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profileEdit" element={<EditProfile />} />
             <Route path="/about" element={<About/>}/>
@@ -66,18 +78,25 @@ function App() {
               path="/semesterRegistration"
               element={<SemesterRegistration />}
             />
+            <Route path='/user-management' element={<UserManagement/>}/>
             <Route path='/No-dues-for-degree-approval' element={<NoDuesForDegreeApproval/>}/>
             <Route path="/add-fees" element={<AddFeesCaretaker/>}/>
             <Route path="/hostel-room-allotment" element={<HostelRoomAllotment/>}/>
+            <Route path="/caretaker-dashboard" element={<CaretakerDashboard/>}/>
+            <Route path="/hostel-no-due-request" element={<CaretakerNoDues/>}/>
             <Route path="/sem-sub-register" element={<SemSubject/>}/>
+            <Route path="/generate-departments" element={<GenerateDepartments/>}/>
+            <Route path="/sem-register" element={<AddSemester/>}/>
             <Route path="/sem-branch-register" element={<SemBranch/>}/>
             <Route path="/hostel-mess-fee-payment" element={<HostelfeePayment/>} />
+            <Route path="/registrar-dashboard" element={<RegistrarDashboard/>} />
             <Route path="/complaints" element={ <ComplaintForm/> } />
             <Route path="/underDevelopment" element={ <UnderDevelopment/> } />
+            <Route path="/admin-dashboard" element={ <AdminDashboard/> } />
             <Route path="/no-dues-for-degree" element={ <NoDuesForDegree/> } />
             <Route path="/verifySemesterRegistration" element={<VerifySemesterRegistration/>} />
             <Route path="/facultySemesterRegistration/:id/:reg" element={<FacultySemesterRegistration/>} />
-            <Route path="/*" element={<NotFoundPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>
 

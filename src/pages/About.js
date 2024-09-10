@@ -1,217 +1,516 @@
-import { Grid, Box, Typography } from "@mui/material";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import SchoolIcon from "@mui/icons-material/School";
-import CastForEducationIcon from "@mui/icons-material/CastForEducation";
-import CameraRollSharpIcon from "@mui/icons-material/CameraRollSharp";
+import {
+  Box,
+  Button,
+  CardMedia,
+  Divider,
+  Grid,
+  Typography,
+} from "@mui/material";
+import { IoMdArrowRoundUp } from "react-icons/io";
+
+import { useEffect, useState } from "react";
 import { Header } from "../components/Home/Header";
+import Footer from "../components/Home/Footer";
 
 export const About = () => {
+  const [scrollPosition, setScrollPosition] = useState(0);
+  useEffect(() => {
+    const handleScroll = () => {
+      const position = window.scrollY;
+      setScrollPosition(position);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <Box>
-         <Header />
-      <Grid
-        container
-        className="justify-center p-2 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage:
-            "url(https://static.vecteezy.com/ti/vetor-gratis/p1/20413291-moderno-isometrico-alunos-dentro-universidade-campus-conceito-com-texto-lugar-pode-usar-para-rede-bandeira-infograficos-heroi-imagens-plano-isometrico-ilustracao-isolado-em-branco-fundo-vetor.jpg)",
-          filter: "brightness(0.5) opacity(0.9)",
-          height: "29rem",
+    <Box
+      style={{
+        overflowX: "hidden",
+        backgroundColor: "whitesmoke",
+        color: "#113",
+       
+      }}
+    >
+      <Header />
+      <Box
+        sx={{
+          width: "100vw",
+          textAlign: "center",
+          // marginTop: "50px",
+          backgroundImage: "url(../images/About.jpg)",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: {
+            xs: "bottom-center",
+            lg: "center",
+            md: "center",
+            sm: "center",
+          },
+          backgroundSize: "cover",
+          overflowX: "none",
+          padding: "5.3rem 0rem 13rem 0rem",
+          height: "100%",
+          position: "relative",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.7)", // Overlay with opacity
+            zIndex: 1,
+          },
         }}
-      ></Grid>
-      <Box style={{ position: "absolute", top: "33%", }}>
-        <p
-          className="lg:text-5xl text-3xl text-white ml-9 w-4/5 font-semibold"
-          style={{ fontFamily: "auto",color:"rgb(171 219 219)" }}
-        >
-          "Smartcampus - Lorem Ipsum Dolor Sit Amet"
-        </p>
-      </Box>
-
-      <Box>
-        <Grid
-          container
-          spacing={2}
-          style={{
-            marginTop: "0%",
-            backgroundColor: "rgb(31 41 55)",
-            padding: "10px",
-          }}
-        >
-          <Grid item xs={12} sm={4}>
-            <Grid container justifyContent="center" alignItems="center">
-              <LocalShippingIcon className="text-4xl sm:text-2xl text-white" />
-              <div style={{ display: "flex", flexDirection: "column",color:"rgb(171 219 219)" }}>
-                <p className="ml-2 text-lg sm:text-base ">
-                  Lorem Ipsum lorem
-                </p>
-                <p className="ml-2  text-sm" style={{color:"rgb(171 219 219)"}}>Lorem Ipsum lorem</p>
-              </div>
-            </Grid>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Grid container justifyContent="center" alignItems="center">
-              <SupportAgentIcon className=" text-white sm:text-xl none" />
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <p className="ml-2 text-lg sm:text-base " style={{color:"rgb(171 219 219)"}}>
-                  Lorem Ipsum lorem
-                </p>
-                <p className="ml-2 text-sm" style={{color:"rgb(171 219 219)"}}>Lorem Ipsum lorem</p>
-              </div>
-            </Grid>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Grid container justifyContent="center" alignItems="center">
-              <AttachMoneyIcon className=" text-white sm:text-xl xs:none" />
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <p className="ml-2 text-lg sm:text-base" style={{color:"rgb(171 219 219)"}}>
-                  Lorem Ipsum lorem
-                </p>
-                <p className="ml-2 text-sm" style={{color:"rgb(171 219 219)"}}>Lorem Ipsum lorem</p>
-              </div>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Box>
-
-      <Box>
-        <p className="text-center text-2xl mt-16 mb-20" style={{color:"rgb(171 219 219)"}}>Why Us??</p>
-      </Box>
-
-      <Box className="mb-32" >
-        <Grid container>
-          <Grid
-            item
-            xs={12}
-            sm={12}
-            lg={4}
-            md={4}
-            style={{
-              justifyContent: "center",
-              alignContent: "center",
-              alignItems: "center",
+      >
+        {scrollPosition > 150 && (
+          <Button
+            id="button"
+            sx={{
+              position: "fixed",
+              bottom: "20px",
+              right: "10px",
+              zIndex: "10",
+              fontSize: "1.5rem",
+              backgroundColor: "#7a7ad4",
+            }}
+            onClick={(e) => {
+              window.scrollTo({
+                top: "0px",
+                behavior: "smooth",
+              });
             }}
           >
-            <Box
-              style={{
-                padding: "27px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
+            <IoMdArrowRoundUp style={{ color: "white" }} />
+          </Button>
+        )}
+        <Grid
+          container
+          sx={{
+            position: "relative",
+            zIndex: 2,
+            color: "white",
+            padding: { xs: "20px", sm: "20px", md: "50px" },
+          }}
+        >
+          <Grid item xs={12} sm={12} lg={6} md={6}>
+            <Typography variant="h1" style={{ fontSize: "3.2rem", marginBottom: "19px" }}>
+              Smart one
+            </Typography>
+            <Typography
+              variant="h1"
+              sx={{
+                paddingBottom: "20px",
+                fontSize: "1.1rem",
+                marginLeft: {
+                  lg: "20px",
+                  xs: "0px",
+                  sm: "0px",
+                  md: "20px",
+                },
+                padding: {
+                  lg: "0px",
+                  xs: "10px",
+                  sm: "10px",
+                  md: "0px",
+                },
+                fontWeight: "400",
+                color: "white",
+                marginTop: "-20px",
               }}
+              id="hero1"
             >
-              <p>
-                <CameraRollSharpIcon
-                  style={{ fontSize: "3.5rem", borderRadius: "50%",color:"rgb(171 219 219)" }}
-                />
-              </p>
-              <p >Lorem Ipsum Dolor Sit Amet</p>
-              <p >Lorem Ipsum Amet Lorem Ipsum Dolor</p>
-            </Box>
+              Smart one is an online platform designed to revolutionize the
+              campus experience with advanced technology and seamless
+              connectivity.
+            </Typography>
           </Grid>
-          <Grid item xs={12} sm={12} lg={4} md={4}>
-            <Box
-              style={{
-                padding: "27px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <p>
-                <SchoolIcon
-                  style={{ fontSize: "3.5rem", borderRadius: "50%",color:"rgb(171 219 219)" }}
-                />
-              </p>
-              <p >Lorem Ipsum Dolor Sit Amet</p>
-              <p >Lorem Ipsum Amet Lorem Ipsum Dolor</p>
-            </Box>
+
+          <Grid item xs={12} sm={12} lg={6} md={6}></Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ width: "100vw", marginTop: "50px" }}>
+        <Typography
+          variant="h1"
+          style={{
+            fontSize: "2.3rem",
+            fontWeight: "600",
+            color: "rgb(107, 169, 169)",
+            marginBottom: "20px",
+            textAlign: "center",
+          }}
+          // id="text00"
+        >
+          Introduction
+        </Typography>
+        <center>
+          <Divider
+            sx={{
+              // padding: "0.7px",
+              backgroundColor: "rgb(79 79 138)",
+              width: { lg: "8%", xs: "36%", md: "10%", sm: "15%" },
+              marginTop: "10px",
+            }}
+          />
+        </center>
+        <Typography
+          component="div"
+          sx={{
+            padding: "20px",
+            fontSize: "1.1rem",
+            textAlign: {
+              lg: "justify",
+              md: "justify",
+              xs: "initial",
+              sm: "initial",
+            },
+          }}
+        >
+          SmartOne is an innovative online platform designed to transform the
+          campus experience through advanced technology and seamless
+          connectivity. Our platform provides an integrated solution for
+          students, faculty, and administration, ensuring efficient
+          communication, streamlined processes, and enhanced engagement. With
+          SmartOne, users can easily access campus resources, stay updated with
+          real-time notifications. Our mission is to create a smarter, more
+          connected campus environment that fosters collaboration and success
+          for everyone involved.
+        </Typography>
+        <center>
+          <p style={{ fontSize: "1.5rem", fontWeight: "600",color: "rgb(107, 169, 169)", }}>Key Features </p>
+        </center>
+        <center>
+          <Divider
+            sx={{
+             
+              backgroundColor: "rgb(79 79 138)",
+              width: { lg: "5%", xs: "30%", md: "10%", sm: "15%" },
+              marginTop: "10px",
+            }}
+          />
+        </center>
+        <Grid container sx={{ padding: { lg: "50px" } }} spacing={4}>
+          <Grid item xs={12} sm={12} md={6} lg={5} sx={{alignContent: "center",}}>
+            <center>
+              {" "}
+              <CardMedia
+                component="img"
+                src="../images/smartOne.png"
+                sx={{
+                  width: { lg: "30vw", xs: "90vw", md: "40vw", sm: "90vw" },
+                  alignContent: "center",
+                  height: "35vh",
+                  objectFit: "cover",
+                  textAlign:"center"
+                }}
+                alt=""
+              />
+            </center>
           </Grid>
-          <Grid item xs={12} sm={12} lg={4} md={4}>
-            <Box
+          <Grid item xs={12} sm={12} md={6} lg={7}>
+            <div
               style={{
-                padding: "27px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
+                fontFamily: "Arial, sans-serif",
+                lineHeight: "1.6",
+                padding: "20px",
               }}
             >
+              <h2 style={{ color: "rgb(107, 169, 169)", marginBottom: "20px" }}>
+                Apply for Bonafide Certificate with SmartOne
+              </h2>
               <p>
-                <CastForEducationIcon
-                  style={{ fontSize: "3.3rem", borderRadius: "50%",color:"rgb(171 219 219)" }}
-                />
+                SmartOne simplifies the process of applying for a bonafide
+                certificate, ensuring students can easily obtain the necessary
+                documentation for various purposes. Here's how it works:
               </p>
-              <p >Lorem Ipsum Dolor Sit Amet</p>
-              <p >Lorem Ipsum Dolor Sit Amet Lorem</p>
-            </Box>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                User-Friendly Interface
+              </h3>
+              <p>
+                Our intuitive interface guides students through the application
+                process, making it accessible for all users.
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                Easy Application Process
+              </h3>
+              <p>
+                Students can log in to their SmartOne accounts and navigate to
+                the 'Bonafide Certificate' section. Fill out a simple online
+                form with essential details such as name, enrollment number,
+                course, and purpose of the certificate. Review the entered
+                information to ensure accuracy before submission.
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                Real-Time Status Updates
+              </h3>
+              <p>
+                Once submitted, students receive real-time updates on the status
+                of their application. Notifications are sent at each stage of
+                the process, from application received to certificate ready for
+                collection.
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                Efficient Processing
+              </h3>
+              <p>
+                Our platform ensures that applications are processed promptly by
+                the administrative staff. SmartOne streamlines the workflow,
+                reducing manual intervention and speeding up the issuance of
+                certificates.
+              </p>
+            </div>
+          </Grid>
+        </Grid>
+        <Grid container sx={{ padding: { lg: "50px" } }} spacing={4}>
+          <Grid item xs={12} sm={12} md={6} lg={7}>
+            <div
+              style={{
+                fontFamily: "Arial, sans-serif",
+                lineHeight: "1.6",
+                padding: "20px",
+              }}
+            >
+              <h2
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "15px",
+                  marginTop: "5px",
+                }}
+              >
+                Apply for Overall No Dues with SmartOne
+              </h2>
+              <p>
+                SmartOne simplifies the process of applying for a Overall No
+                Dues, ensuring students can easily obtain the necessary
+                documentation for various purposes. Here's how it works:
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                User-Friendly Interface
+              </h3>
+              <p>
+                Our intuitive interface guides students through the application
+                process, making it accessible for all users.
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                Easy Application Process
+              </h3>
+              <p>
+                Students can log in to their SmartOne accounts and navigate to
+                the Overall No Dues section. Review the entered information to
+                ensure accuracy before submission.
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                Real-Time Status Updates
+              </h3>
+              <p>
+                Once submitted, students receive real-time updates on the status
+                of their application. Notifications are sent at each stage of
+                the process, from application received to approved by all
+                departments.
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                Efficient Processing
+              </h3>
+              <p>
+                Our platform ensures that applications are processed promptly by
+                the administrative staff. SmartOne streamlines the workflow,
+                reducing manual intervention and speeding up the overall of
+                work.
+              </p>
+            </div>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={5} sx={{alignContent: "center",}}>
+            <center>
+              {" "}
+              <CardMedia
+                component="img"
+                src="../images/smartOne1.png"
+                sx={{
+                  width: { lg: "30vw", xs: "90vw", md: "40vw", sm: "90vw" },
+                 
+                  height: "35vh",
+                  objectFit: "contain",
+                }}
+                alt=""
+              />
+            </center>
+          </Grid>
+        </Grid>
+        <Grid container sx={{ padding: { lg: "50px" } }} spacing={4}>
+          <Grid item xs={12} sm={12} md={6} lg={5} sx={{alignContent: "center",}}>
+            <center>
+              {" "}
+              <CardMedia
+                component="img"
+                src="../images/smartOne2.png"
+                sx={{
+                  width: { lg: "30vw", xs: "90vw", md: "40vw", sm: "90vw" },
+                  
+                  height: "35vh",
+                  objectFit: "contain",
+                  display: { lg: "block", md: "block", sm: "none", xs: "none" },
+                  
+                }}
+                alt=""
+              />
+            </center>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={7}>
+            <div
+              style={{
+                fontFamily: "Arial, sans-serif",
+                lineHeight: "1.6",
+                padding: "20px",
+              }}
+            >
+              <h2
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "15px",
+                  marginTop: "5px",
+                }}
+              >
+                Apply for Hostel Request with SmartOne
+              </h2>
+              <p>
+                SmartOne simplifies the process of applying for a Hostel
+                Request, ensuring students can easily obtain the necessary
+                documentation for various purposes. Here's how it works:
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                User-Friendly Interface
+              </h3>
+              <p>
+                Our intuitive interface guides students through the application
+                process, making it accessible for all users.
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                Easy Application Process
+              </h3>
+              <p>
+                Students can log in to their SmartOne accounts and navigate to
+                the 'Hostel Request' section. Fill out a simple online form with
+                essential details such as name, enrollment number, course, and
+                How many members. Review the entered information to ensure
+                accuracy before submission.
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                Real-Time Status Updates
+              </h3>
+              <p>
+                Once submitted, students receive real-time updates on the status
+                of their application. Notifications are sent at each stage of
+                the process, from application received to certificate ready for
+                collection.
+              </p>
+              <h3
+                style={{
+                  color: "rgb(107, 169, 169)",
+                  marginBottom: "5px",
+                  marginTop: "5px",
+                }}
+              >
+                Efficient Processing
+              </h3>
+              <p>
+                Our platform ensures that applications are processed promptly by
+                the administrative staff. SmartOne streamlines the workflow,
+                reducing manual intervention and speeding up overall work.
+              </p>
+            </div>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={5}>
+            <center>
+              {" "}
+              <CardMedia
+                component="img"
+                src="../images/smartOne2.png"
+                sx={{
+                  width: { lg: "30vw", xs: "90vw", md: "40vw", sm: "90vw" },
+                  marginTop: { lg: "200px", xs: "0px", md: "200px" },
+                  height: "35vh",
+                  objectFit: "contain",
+                  display: { lg: "none", md: "none", sm: "block", xs: "block" },
+                }}
+                alt=""
+              />
+            </center>
           </Grid>
         </Grid>
       </Box>
-      <Box> 
-      <Box className="p-12" style={{backgroundColor:"#F8F6F4"}}>
-      <Typography variant="h4" gutterBottom>
-        Mission
-      </Typography>
-      <Typography variant="body1" paragraph>
-        At the core of our mission is an unwavering commitment to excellence. We take great pride in offering a comprehensive and easy-to-use platform. It caters to all aspects of student information management, classroom administration, assessment, and reporting. With “Smartcampus,” educational institutions gain a powerful tool that streamlines their daily operations, enhances efficiency, and fosters better student outcomes.
-      </Typography>
-      
-      <Typography variant="h6" gutterBottom>
-        Intuitiveness and User-Friendliness
-      </Typography>
-      <Typography variant="body1" paragraph>
-        One of the key pillars that sets “Smartcampus” apart is its unparalleled intuitiveness and user-friendliness. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. To further augment this, “Smartcampus” is backed by a team of seasoned experts. They are dedicated to offering personalized service and support, ensuring that our clients receive the assistance they need to optimize their experience with the software.
-      </Typography>
-      
-      <Typography variant="h6" gutterBottom>
-        Commitment
-      </Typography>
-      <Typography variant="body1" paragraph>
-        Our commitment to delivering the highest quality educational management solutions extends to our valued partners as well. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. This investment in training not only enhances the value of their association with us but also contributes to the overall success of the institutions we serve.
-      </Typography>
-      
-      <Typography variant="body1" paragraph>
-        In the rapidly evolving landscape of educational technology, we recognize the importance of staying ahead of the curve. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada.
-      </Typography>
-      
-      <Typography variant="body1" paragraph>
-        Through our dedication to innovation, customer service, and the development of high-quality software solutions, “Smartcampus” has earned a reputation as one of the most trusted names in the industry. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada.
-      </Typography>
-      
-      <Typography variant="body1" paragraph>
-        In summary, “Smartcampus” offers more than just software; it embodies a transformative solution that drives positive change in educational institutions. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada.
-      </Typography>
-    </Box>
-      </Box>
-      <footer className="bg-gray-800 text-white p-8 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <h3 className="font-bold">Contact Information</h3>
-            <p>Address, Phone, Email</p>
-          </div>
-          <div>
-            <h3 className="font-bold">Quick Links</h3>
-            <p>Admissions, Careers, Privacy Policy</p>
-          </div>
-          <div>
-            <h3 className="font-bold">Newsletter Signup</h3>
-            <input
-              type="email"
-              placeholder="Your email"
-              className="px-4 py-2 rounded mt-2 w-full"
-            />
-          </div>
-          <div>
-            <h3 className="font-bold">Accreditations and Partnerships</h3>
-            <p>Logos or brief mentions</p>
-          </div>
-        </div>
-      </footer>
+
+      <Footer />
     </Box>
   );
 };
