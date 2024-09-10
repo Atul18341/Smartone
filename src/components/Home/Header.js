@@ -76,7 +76,7 @@ export const Header = () => {
                 display: { xs: 'block', md: 'block' },
               }}
             >
-              Smart One
+              Smartone
             </Typography>
 
             <Menu

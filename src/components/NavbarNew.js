@@ -668,7 +668,7 @@ export const NavbarNew = () => {
                 navigate("/");
               }}
             >
-              Smart One
+              Smartone
             </h1>
           </div>
           <Box sx={{display:{
