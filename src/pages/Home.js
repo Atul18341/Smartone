@@ -165,7 +165,7 @@ export const Home = () => {
           </p>
           <p
             style={{
-              textAlign: "center",
+              textAlign: "justify",
               fontSize: "1.2rem",
               lineClamp: 2,
               padding: "10px",
@@ -211,7 +211,7 @@ export const Home = () => {
             Ready to Explore Our Smart One?
           </p>
 
-          <p style={{ textAlign: "center", padding: "15px" }}>
+          <p style={{  padding: "15px",textAlign:"justify" }}>
           Our platform brings together students, faculty, and staff at a common digital place where they can fulfil each other's requirements to avail campus facilities in an efficient and smarter way.
           </p>
 
