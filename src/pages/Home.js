@@ -171,9 +171,7 @@ export const Home = () => {
               padding: "10px",
             }}
           >
-            Our platform brings together students, faculty, and staff to keep
-            everyone up-to-date with the latest campus news, events, and
-            announcements.
+            Our platform brings together students, faculty, and staff at a common digital place where they can fulfil each other's requirements to avail campus facilities in an efficient and smarter way.
           </p>
 
           <center>
@@ -214,9 +212,7 @@ export const Home = () => {
           </p>
 
           <p style={{ textAlign: "center", padding: "15px" }}>
-            "Our platform brings together students, faculty, and staff to keep
-            everyone up-to-date with the latest campus news, events, and
-            announcements. "
+          Our platform brings together students, faculty, and staff at a common digital place where they can fulfil each other's requirements to avail campus facilities in an efficient and smarter way.
           </p>
 
           <center>

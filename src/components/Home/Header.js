@@ -11,7 +11,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { useNavigate } from 'react-router-dom';
 import { CgMenuLeftAlt } from 'react-icons/cg';
 
-const pages = ['About', 'Contact', 'Login'];
+const pages = ['About', 'Service Request', 'Login'];
 const settings = ['Profile', 'Account', 'Logout'];
 
 export const Header = () => {
@@ -36,7 +36,12 @@ export const Header = () => {
   };
 
   const handleNavigate = (page) => {
-    navigate(`/${page.toLowerCase()}`);
+
+    if (page.toLowerCase() === 'service request') {
+      navigate('/contact');
+    } else {
+      navigate(`/${page.toLowerCase()}`);
+    }
     handleCloseNavMenu();
   };
 

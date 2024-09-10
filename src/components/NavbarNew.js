@@ -663,7 +663,7 @@ export const NavbarNew = () => {
               )}
             </div>
             <h1
-              className="text-xl font-bold ml-4 "
+              className="text-xl font-bold ml-4 cursor-pointer"
               onClick={(e) => {
                 navigate("/");
               }}
