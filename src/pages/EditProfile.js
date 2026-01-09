@@ -1449,7 +1449,6 @@ export const EditProfile = () => {
                             {...register("college_name")}
                             error={!!errors.college_name}
                             helperText={errors.college_name?.message}
-                            disabled
                           />
                         </Grid>
 
